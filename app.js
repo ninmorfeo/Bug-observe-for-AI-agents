@@ -21,6 +21,7 @@
     btnTest: qs('#btn-test'),
     out: qs('#test-output'),
     btnReset: qs('#btn-reset'),
+    unsavedChanges: qs('#unsaved-changes'),
   };
 
   const state = {
@@ -28,7 +29,8 @@
       apiEnabled: false,
       apiKey: '',
       files: [] // { path, deleteAfterRead }
-    }
+    },
+    hasUnsavedChanges: false
   };
 
   function buildEndpointPreview() {
@@ -77,8 +79,16 @@
     state.config = Object.assign(state.config, data);
     els.apiEnabled.checked = !!state.config.apiEnabled;
     els.apiKey.value = state.config.apiKey || '';
+    
+    // Temporarily disable change tracking during initial load
+    const prevState = state.hasUnsavedChanges;
+    state.hasUnsavedChanges = false;
+    
     renderRows();
     buildEndpointPreview();
+    
+    // Restore state (should be false on initial load)
+    state.hasUnsavedChanges = prevState;
   }
 
   async function saveConfig() {
@@ -89,6 +99,11 @@
       body: payload
     });
     if (!res.ok) throw new Error('Salvataggio fallito');
+    
+    // Hide unsaved changes warning
+    state.hasUnsavedChanges = false;
+    els.unsavedChanges.style.display = 'none';
+    
     showToast('Configurazione salvata');
   }
 
@@ -217,6 +232,12 @@
     state.config.apiEnabled = els.apiEnabled.checked;
     state.config.apiKey = els.apiKey.value.trim();
     buildEndpointPreview();
+    
+    // Show unsaved changes warning
+    if (!state.hasUnsavedChanges) {
+      state.hasUnsavedChanges = true;
+      els.unsavedChanges.style.display = 'flex';
+    }
   }
 
   function dedupe(arr) {
