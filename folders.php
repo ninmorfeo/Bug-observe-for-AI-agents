@@ -4,12 +4,15 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Explore a base directory and return a filtered tree of folders and log-like files
 
-$base = dirname(__DIR__); // default: project root
+// Secure base directory handling
+$allowedBase = realpath(dirname(__DIR__)); // default: project root
+$base = $allowedBase;
+
 if (isset($_GET['base'])) {
-  $req = (string)$_GET['base'];
-  // rudimentary traversal protection
-  if (strpos($req, '..') === false) {
-    $base = $req;
+  $requested = realpath($_GET['base']);
+  // Only allow if the requested path is within the allowed base
+  if ($requested !== false && strpos($requested, $allowedBase) === 0) {
+    $base = $requested;
   }
 }
 

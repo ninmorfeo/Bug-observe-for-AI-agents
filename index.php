@@ -5,6 +5,17 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Rate limiting
+require_once __DIR__ . '/includes/rate-limiter.php';
+$rateLimiter = new RateLimiter(60, 60); // 60 requests per minute
+$clientId = $_SERVER['REMOTE_ADDR'] . ':' . ($_GET['api_key'] ?? '');
+
+if (!$rateLimiter->checkLimit($clientId)) {
+  http_response_code(429);
+  echo json_encode(['error' => 'Too many requests. Please try again later.']);
+  exit;
+}
+
 $baseDir = __DIR__;
 $dataDir = $baseDir . DIRECTORY_SEPARATOR . 'data';
 @mkdir($dataDir, 0755, true);
@@ -24,14 +35,25 @@ if (is_file($configPath)) {
   }
 }
 
-// Auth
+// Auth with hash verification
 $apiKey = $_GET['api_key'] ?? '';
 if (empty($config['apiEnabled']) || !$config['apiEnabled']) {
   http_response_code(403);
   echo json_encode(['error' => 'API disabled']);
   exit;
 }
-if (!is_string($apiKey) || $apiKey !== (string)($config['apiKey'] ?? '')) {
+
+// Check against hash if available, fallback to plain comparison for backward compatibility
+$authorized = false;
+if (!empty($config['apiKeyHash'])) {
+  // Use hash verification
+  $authorized = password_verify($apiKey, $config['apiKeyHash']);
+} else if (!empty($config['apiKey'])) {
+  // Fallback to plain text for existing installations
+  $authorized = ($apiKey === $config['apiKey']);
+}
+
+if (!$authorized) {
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
