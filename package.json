@@ -1,0 +1,28 @@
+{
+  "name": "bugobserve-ai-agents",
+  "version": "2.0.0",
+  "description": "A powerful debugging and log monitoring tool designed for AI agents and automated development workflows",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ninmorfeo/Bug-observe-for-AI-agents.git"
+  },
+  "keywords": [
+    "debug",
+    "log",
+    "monitoring",
+    "ai",
+    "agents",
+    "development",
+    "tools"
+  ],
+  "author": "ninmorfeo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ninmorfeo/Bug-observe-for-AI-agents/issues"
+  },
+  "homepage": "https://github.com/ninmorfeo/Bug-observe-for-AI-agents#readme"
+}
