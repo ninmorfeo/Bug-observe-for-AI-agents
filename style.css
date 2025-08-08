@@ -28,7 +28,9 @@ code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 .icon-btn .svg-sun{display:none}
 [data-theme="light"] .icon-btn .svg-sun{display:block}
 [data-theme="light"] .icon-btn .svg-moon{display:none}
-.app-footer{border-top:1px solid var(--border);border-bottom:none;opacity:.7}
+.app-footer{border-top:1px solid var(--border);border-bottom:none;opacity:.7;text-align:center}
+.app-footer a{color:var(--accent);text-decoration:none;transition:all .2s ease}
+.app-footer a:hover{text-decoration:underline;opacity:.9}
 .subtitle{color:var(--muted)}
 .container{padding:24px;max-width:1200px;margin:0 auto}
 .warning-banner{background:#fef3c7;border:2px solid #fbbf24;color:#78350f;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:500;display:flex;align-items:center;gap:8px;animation:slideDown 0.3s ease}
