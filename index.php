@@ -63,6 +63,10 @@ foreach ($config['files'] as $entry) {
   $fromDate = trim((string)($entry['fromDate'] ?? ''));
   $fromTime = trim((string)($entry['fromTime'] ?? ''));
   $forceDate = !empty($entry['forceDate']);
+  
+  // Skip completely if hidden
+  if ($hide) continue;
+  
   if ($path === '' || !isAllowedExtension($path)) {
     $results[] = [
       'path' => $path,
@@ -102,22 +106,12 @@ foreach ($config['files'] as $entry) {
       $content = implode("\n", $filtered);
     }
   }
-  if ($hide) {
-    // Se hide=true, non includere il contenuto nel payload (ma segnala la riga)
-    $results[] = [
-      'path' => $path,
-      'ok' => true,
-      'size' => 0,
-      'hidden' => true
-    ];
-  } else {
-    $results[] = [
+  $results[] = [
     'path' => $path,
     'ok' => true,
     'size' => strlen((string)$content),
-      'content_log' => $content
-    ];
-  }
+    'content_log' => $content
+  ];
   if ($deleteAfter) {
     @unlink($abs);
   }
