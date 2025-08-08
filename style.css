@@ -112,6 +112,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:10px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .5s ease}
 .toast.show{opacity:1}
 
+.info-box{margin-top:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px}
+.info-box p{margin:0 0 8px;color:var(--muted)}
+.info-box p:last-child{margin-bottom:0}
+.info-box strong{color:var(--text)}
+
 @media (max-width:940px){
   .grid-2,.columns{grid-template-columns:1fr}
 }
