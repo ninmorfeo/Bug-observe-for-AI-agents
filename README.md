@@ -29,6 +29,7 @@ BugObserve for AI Agents is designed to streamline the debugging process for AI-
 - Drag-and-drop interface for easy log file selection
 - Automatic log rotation support
 - Delete-after-read option for temporary logs
+- Character limit per log file for large files
 
 ### 🔍 Advanced Filtering
 - Date and time-based filtering
@@ -42,11 +43,22 @@ BugObserve for AI Agents is designed to streamline the debugging process for AI-
 - Expandable/collapsible directory structure
 - Quick file path copying
 
+### 🔐 Enterprise Security Features (NEW v2.0)
+- **Admin Authentication**: Secure login system with session management
+- **Password Management**: In-panel password change with strength indicator
+- **Brute Force Protection**: Configurable IP blocking after failed attempts
+- **Rate Limiting**: 60 requests/minute per IP to prevent abuse
+- **CSRF Protection**: Token-based form submission security
+- **Session Timeout**: Configurable auto-logout after inactivity
+- **API Key Hashing**: Bcrypt encryption for stored credentials
+- **Path Traversal Prevention**: Secure file access validation
+
 ### 🔑 Secure API Access
-- Generate unique API keys
+- Generate unique API keys with one click
 - Enable/disable API access on demand
 - Direct endpoint URLs for quick testing
 - Pretty-print JSON output option
+- Unified security settings for API and admin
 
 ### 🎨 Modern UI/UX
 - Dark/Light theme support
@@ -101,10 +113,37 @@ http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 - **Reset**: Return all settings to defaults
 - **Test Endpoint**: Preview API output directly
 
+## 🔒 Security Configuration
+
+### Default Admin Credentials
+- **Username**: admin
+- **Password**: changeme123
+- ⚠️ **IMPORTANT**: Change password immediately after first login!
+
+### Security Settings (Configurable from Admin Panel)
+- **Max Login Attempts**: 3-100 (default: 10)
+- **IP Block Duration**: 60-86400 seconds (default: 300)
+- **Session Timeout**: 5-1440 minutes (default: 30)
+
+### Password Reset
+```bash
+# From command line
+php set-admin-password.php YourNewSecurePassword
+```
+
+### Protected Endpoints
+- `admin.html` - Requires authentication
+- `save-config.php` - Requires valid session
+- `load-config.php` - Requires valid session
+- `folders.php` - Requires valid session
+
+### Public Endpoint
+- `index.php?api_key=YOUR_KEY` - API access (requires valid API key)
+
 ## 🛠️ Technical Details
 
 ### Requirements
-- PHP 7.0 or higher
+- PHP 7.0 or higher (PHP 8.x recommended)
 - Web server (Apache, Nginx, etc.)
 - Modern browser with JavaScript enabled
 
@@ -112,14 +151,23 @@ http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 ```
 bugobserve-ai-agents/
 ├── admin.html          # Admin interface
+├── login.html         # Login page
 ├── app.js             # Core application logic
 ├── style.css          # Styling and themes
 ├── index.php          # API endpoint
+├── auth.php           # Authentication handler
+├── change-password.php # Password management
 ├── folders.php        # File explorer backend
 ├── load-config.php    # Configuration loader
 ├── save-config.php    # Configuration saver
+├── includes/
+│   ├── session-check.php         # Session validation
+│   ├── rate-limiter.php         # Rate limiting
+│   └── brute-force-protection.php # IP blocking
 └── data/
-    └── config.json    # Stored configuration
+    ├── config.json    # Main configuration
+    ├── admin.json     # Admin credentials
+    └── failed_attempts/ # Brute force tracking
 ```
 
 ## 🤝 AI Agent Integration
