@@ -94,21 +94,28 @@
 
   function renderRows() {
     els.logList.innerHTML = '';
-    state.config.files.forEach(f => addRow(f.path, !!f.deleteAfterRead));
-    if (state.config.files.length === 0) addRow('', false);
+    state.config.files.forEach(f => addRow(f.path, !!f.deleteAfterRead, !!f.hide));
+    if (state.config.files.length === 0) addRow('', false, false);
   }
 
-  function addRow(path = '', del = false) {
+  function addRow(path = '', del = false, hide = false) {
     const tpl = qs('#row-template');
     const li = tpl.content.firstElementChild.cloneNode(true);
     const input = qs('.path', li);
     const chk = qs('.delete-after', li);
+    const hideChk = qs('.hide-log', li);
     const btn = qs('.remove', li);
     const btnExp = qs('.expand', li);
     const panel = qs('.details', li);
     const dragHandle = qs('.drag-handle', li);
     input.value = path;
     chk.checked = del;
+    hideChk.checked = hide;
+    
+    // Apply hidden styling if needed
+    if (hide) {
+      li.classList.add('hidden-marked');
+    }
 
     // Improved drag & drop with visual gaps
     dragHandle.addEventListener('dragstart', ev => {
@@ -170,6 +177,17 @@
     });
 
     chk.addEventListener('change', syncStateFromDOM);
+    
+    // Handle hide checkbox styling
+    hideChk.addEventListener('change', () => {
+      if (hideChk.checked) {
+        li.classList.add('hidden-marked');
+      } else {
+        li.classList.remove('hidden-marked');
+      }
+      syncStateFromDOM();
+    });
+    
     btnExp.addEventListener('click', () => {
       const open = panel.classList.toggle('show');
       btnExp.classList.toggle('open', open);
@@ -355,7 +373,7 @@
     showToast('Nuova chiave generata');
   });
   els.apiEnabled.addEventListener('change', syncStateFromDOM);
-  els.btnAddRow.addEventListener('click', () => { addRow('', false); showToast('Riga aggiunta'); });
+  els.btnAddRow.addEventListener('click', () => { addRow('', false, false); showToast('Riga aggiunta'); });
   els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
   els.btnFetchTree.addEventListener('click', fetchTree);
   els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast('Tutti espansi'); });

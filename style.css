@@ -78,6 +78,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .log-list{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
 .log-row{display:grid;grid-template-columns:max-content 1fr max-content max-content;gap:10px;padding:10px;border-bottom:1px solid var(--border);align-items:center;transition:all .2s ease;position:relative}
 .log-row:last-child{border-bottom:none}
+.log-row.hidden-marked{border-color:var(--danger-btn-border, #7f1d1d);background:rgba(127, 29, 29, 0.05)}
+.log-row.hidden-marked .path{color:var(--danger-btn-text, #fecaca)}
 .log-row .drag-handle{cursor:grab;padding:6px 4px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s ease;border-radius:4px}
 .log-row .drag-handle:hover{color:var(--text);background:var(--surface-2);transform:scale(1.1)}
 .log-row .drag-handle:active{cursor:grabbing;transform:scale(0.95)}
