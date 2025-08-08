@@ -48,11 +48,87 @@
     hasUnsavedChanges: false
   };
 
+  function updateApiStatusIndicator() {
+    const indicator = document.getElementById('api-status-indicator');
+    if (!indicator) return;
+    
+    if (state.config.apiEnabled) {
+      // API enabled - green with pulse
+      indicator.style.background = '#10b981';
+      indicator.className = 'api-status-active';
+      indicator.title = 'API Attiva';
+    } else {
+      // API disabled - red with pulse
+      indicator.style.background = '#ef4444';
+      indicator.className = 'api-status-inactive';
+      indicator.title = 'API Disattivata';
+    }
+  }
+  
   function buildEndpointPreview() {
     const base = location.origin + location.pathname.replace(/\/admin\.html$/, '/');
     const idx = base + 'index.php';
-    els.endpointUrl.textContent = idx + '?api_key=' + (state.config.apiKey || 'XXXXX');
-    els.endpointDirect.textContent = idx + '?api_key=' + (state.config.apiKey || 'XXXXX') + '&pretty=1';
+    
+    // Update status indicator
+    updateApiStatusIndicator();
+    
+    // Check if we have the real key in session or if it's masked
+    let displayKey = state.config.apiKey || 'XXXXX';
+    let isKeyMasked = displayKey.includes('•••') || 
+                      displayKey.includes('nascosta') || 
+                      displayKey.includes('...');
+    
+    if (isKeyMasked) {
+      // Show instructional text instead of fake URL
+      els.endpointUrl.textContent = 'Chiave nascosta - Genera una nuova chiave per vedere l\'URL completo';
+      els.endpointDirect.textContent = 'Chiave nascosta - Genera una nuova chiave per vedere l\'URL completo';
+      
+      // Remove copy tooltip and update with info message
+      els.endpointUrl.removeAttribute('data-tip');
+      els.endpointDirect.removeAttribute('data-tip');
+      els.endpointUrl.classList.remove('copyable');
+      els.endpointDirect.classList.remove('copyable');
+      
+      // Style them differently to show they're not clickable
+      els.endpointUrl.style.cursor = 'not-allowed';
+      els.endpointUrl.style.opacity = '0.6';
+      els.endpointDirect.style.cursor = 'not-allowed';
+      els.endpointDirect.style.opacity = '0.6';
+      
+      // Update click handlers to show info instead of copying
+      els.endpointUrl.onclick = (e) => {
+        e.preventDefault();
+        showInfoMessage();
+      };
+      els.endpointDirect.onclick = (e) => {
+        e.preventDefault();
+        showInfoMessage();
+      };
+    } else {
+      // We have the real key, show normal URLs
+      els.endpointUrl.textContent = idx + '?api_key=' + displayKey;
+      els.endpointDirect.textContent = idx + '?api_key=' + displayKey + '&pretty=1';
+      
+      // Restore copy tooltip
+      els.endpointUrl.setAttribute('data-tip', 'Clicca per copiare');
+      els.endpointDirect.setAttribute('data-tip', 'Clicca per copiare');
+      els.endpointUrl.classList.add('copyable');
+      els.endpointDirect.classList.add('copyable');
+      
+      // Reset styles
+      els.endpointUrl.style.cursor = 'pointer';
+      els.endpointUrl.style.opacity = '1';
+      els.endpointDirect.style.cursor = 'pointer';
+      els.endpointDirect.style.opacity = '1';
+      
+      // Reset to normal copy behavior
+      els.endpointUrl.onclick = null;
+      els.endpointDirect.onclick = null;
+    }
+  }
+  
+  function showInfoMessage() {
+    showSuccessBanner('Per vedere l\'URL completo, genera una nuova chiave API o usa la chiave salvata in precedenza');
   }
 
   async function copyToClipboard(text) {
@@ -96,7 +172,7 @@
     els.apiKey.value = state.config.apiKey || '';
     
     // If API key is masked, add a tooltip
-    if (els.apiKey.value.includes('•••') || els.apiKey.value.includes('nascosta')) {
+    if (els.apiKey.value.includes('•••') || els.apiKey.value.includes('nascosta') || els.apiKey.value.includes('...')) {
       els.apiKey.title = 'La chiave API è salvata ma nascosta per sicurezza. Genera una nuova chiave se necessario.';
       els.apiKey.style.fontStyle = 'italic';
     } else {
@@ -120,19 +196,29 @@
   }
 
   async function saveConfig() {
-    const payload = JSON.stringify(state.config);
-    const res = await fetch('save-config.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload
-    });
-    if (!res.ok) throw new Error('Salvataggio fallito');
-    
-    // Hide unsaved changes warning
-    state.hasUnsavedChanges = false;
-    els.unsavedChanges.style.display = 'none';
-    
-    showToast('Configurazione salvata');
+    try {
+      const payload = JSON.stringify(state.config);
+      const res = await fetch('save-config.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      });
+      
+      if (!res.ok) {
+        showToast('Errore nel salvataggio');
+        return false;
+      }
+      
+      // Hide unsaved changes warning
+      state.hasUnsavedChanges = false;
+      els.unsavedChanges.style.display = 'none';
+      
+      // Don't show toast here, it will be handled by the caller
+      return true;
+    } catch (error) {
+      showToast('Errore di connessione');
+      return false;
+    }
   }
 
   function renderRows() {
@@ -295,6 +381,35 @@
       }
     }, 10000);
   }
+  
+  function showSuccessBanner(message) {
+    // Remove any existing success banner
+    const existing = document.querySelector('.success-banner');
+    if (existing) existing.remove();
+    
+    // Create success banner
+    const successBanner = document.createElement('div');
+    successBanner.className = 'success-banner';
+    successBanner.innerHTML = `
+      <span>✅ ${message}</span>
+      <button class="close-success" style="background:transparent;border:none;color:#065f46;cursor:pointer;font-size:20px;padding:0;margin-left:16px" onclick="this.parentElement.remove()">✕</button>
+    `;
+    successBanner.style.cssText = 'background:#d1fae5;border:2px solid #10b981;color:#065f46;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:500;display:flex;align-items:center;justify-content:space-between;animation:slideDown 0.3s ease;';
+    
+    // Insert at the beginning of container
+    const container = document.querySelector('.container');
+    container.insertBefore(successBanner, container.firstChild);
+    
+    // Fade out and remove after 3 seconds
+    setTimeout(() => {
+      if (successBanner.parentElement) {
+        successBanner.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        successBanner.style.opacity = '0';
+        successBanner.style.transform = 'translateY(-10px)';
+        setTimeout(() => successBanner.remove(), 500);
+      }
+    }, 3000);
+  }
 
   function dedupe(arr) {
     const seen = new Set();
@@ -454,7 +569,13 @@
   els.blockDuration.addEventListener('change', syncStateFromDOM);
   els.sessionTimeout && els.sessionTimeout.addEventListener('change', syncStateFromDOM);
   els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast('Riga aggiunta'); });
-  els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
+  els.btnSave.addEventListener('click', async () => { 
+    syncStateFromDOM(); 
+    const success = await saveConfig();
+    if (success) {
+      showSuccessBanner('Configurazione salvata con successo');
+    }
+  });
   els.btnFetchTree.addEventListener('click', fetchTree);
   els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast('Tutti espansi'); });
   els.btnCollapseAll && els.btnCollapseAll.addEventListener('click', () => { setAllCollapsed(true); showToast('Tutti compressi'); });
@@ -762,17 +883,31 @@
       showToast('Errore durante il reset');
     }
   });
-  els.btnTest.addEventListener('click', async () => {
-    syncStateFromDOM();
-    await saveConfig();
-    const url = 'index.php?api_key=' + encodeURIComponent(state.config.apiKey) + '&pretty=1';
-    const res = await fetch(url);
-    const text = await res.text();
-    const lines = text.split(/\r?\n/);
-    const max = 500;
-    const trimmed = lines.length > max ? lines.slice(-max).join('\n') : text;
-    els.out.textContent = trimmed;
-    showToast('Test eseguito');
+  els.btnTest && els.btnTest.addEventListener('click', async () => {
+    els.btnTest.disabled = true;
+    els.btnTest.textContent = 'Test in corso...';
+    els.out.textContent = 'Esecuzione test endpoint...';
+    els.out.style.color = '';
+    
+    try {
+      // Use the new test endpoint that works server-side
+      const res = await fetch('test-endpoint.php');
+      const data = await res.json();
+      
+      if (data.success) {
+        els.out.textContent = '✅ ' + data.message + '\n\n' + data.output;
+        els.out.style.color = '#10b981';
+      } else {
+        els.out.textContent = '❌ ' + (data.error || 'Test fallito') + '\n\n' + (data.output || '');
+        els.out.style.color = '#ef4444';
+      }
+    } catch (error) {
+      els.out.textContent = '❌ Errore di connessione durante il test:\n' + error.message;
+      els.out.style.color = '#ef4444';
+    } finally {
+      els.btnTest.disabled = false;
+      els.btnTest.textContent = 'Testa endpoint';
+    }
   });
   
   // Download htaccess example

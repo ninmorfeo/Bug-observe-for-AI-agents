@@ -188,12 +188,23 @@
             window.location.href = 'admin.html';
           }
         } else {
-          errorMsg.textContent = data.error || 'Credenziali non valide';
-          errorMsg.classList.add('show');
-          
-          if (data.attempts_remaining && data.attempts_remaining < 5) {
-            attemptsWarning.textContent = `Attenzione: ${data.attempts_remaining} tentativi rimanenti prima del blocco`;
-            attemptsWarning.classList.add('show');
+          // Check if user is blocked
+          if (data.blocked) {
+            errorMsg.innerHTML = `
+              <strong>⛔ Account temporaneamente bloccato</strong><br>
+              ${data.error || 'Troppi tentativi falliti.'}
+            `;
+            errorMsg.style.background = 'rgba(239,68,68,.2)';
+            errorMsg.classList.add('show');
+            attemptsWarning.classList.remove('show');
+          } else {
+            errorMsg.textContent = data.error || 'Credenziali non valide';
+            errorMsg.classList.add('show');
+            
+            if (data.attempts_remaining !== undefined && data.attempts_remaining <= 5) {
+              attemptsWarning.textContent = `⚠️ Attenzione: solo ${data.attempts_remaining} tentativi rimanenti prima del blocco temporaneo`;
+              attemptsWarning.classList.add('show');
+            }
           }
         }
       } catch (error) {

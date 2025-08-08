@@ -55,13 +55,17 @@ if (!empty($cfg['apiKey'])) {
   $existingHash = $existingConfig['apiKeyHash'] ?? '';
   
   // Check if it's a masked placeholder
-  $isMaskedPlaceholder = strpos($cfg['apiKey'], '•••') !== false || strpos($cfg['apiKey'], 'nascosta') !== false;
+  $isMaskedPlaceholder = strpos($cfg['apiKey'], '•••') !== false || 
+                        strpos($cfg['apiKey'], 'nascosta') !== false || 
+                        strpos($cfg['apiKey'], '...') !== false;
   
   // If key is different from stored masked version and not a placeholder, it's a new key
   if (!$isMaskedPlaceholder && $cfg['apiKey'] !== $existingKey) {
     // Save the full key in session for current session display
     $_SESSION['last_api_key'] = $cfg['apiKey'];
     $cfg['apiKeyHash'] = password_hash($cfg['apiKey'], PASSWORD_DEFAULT);
+    // Save first part for display purposes (to show in URLs)
+    $cfg['apiKeyPrefix'] = substr($cfg['apiKey'], 0, 10); // Save more chars for reference
     $cfg['apiKey'] = substr($cfg['apiKey'], 0, 6) . '...'; // Mask for storage
   } else {
     // Keep existing hash if key hasn't changed or is placeholder

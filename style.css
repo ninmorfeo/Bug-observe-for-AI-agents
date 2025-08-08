@@ -177,6 +177,25 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .security-note{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
 .security-note .hint{margin:0;font-size:13px;display:flex;align-items:center;gap:6px}
 
+/* API Status Indicator */
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3); }
+}
+
+.api-status-active {
+  animation: pulse-green 2s infinite;
+}
+
+.api-status-inactive {
+  animation: pulse-red 2s infinite;
+}
+
 @media (max-width:940px){
   .grid-2,.columns{grid-template-columns:1fr}
 }

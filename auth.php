@@ -104,10 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bruteForce->recordFailedAttempt($clientIp);
     
     // Calculate remaining attempts
-    $attemptsFile = dirname(__DIR__) . '/bugobserve-ai-agents/data/failed_attempts/' . md5($clientIp) . '.json';
+    $attemptsFile = __DIR__ . '/data/failed_attempts/' . md5($clientIp) . '.json';
     $attemptsData = file_exists($attemptsFile) ? json_decode(file_get_contents($attemptsFile), true) : [];
     $attempts = $attemptsData['attempts'] ?? 0;
-    $remaining = max(0, 5 - $attempts);
+    $maxAttempts = $config['maxAttempts'] ?? 10;
+    $remaining = max(0, $maxAttempts - $attempts);
     
     http_response_code(401);
     echo json_encode([
