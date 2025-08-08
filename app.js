@@ -23,12 +23,16 @@
     btnReset: qs('#btn-reset'),
     unsavedChanges: qs('#unsaved-changes'),
     btnDownloadHtaccess: qs('#btn-download-htaccess'),
+    maxAttempts: qs('#max-attempts'),
+    blockDuration: qs('#block-duration'),
   };
 
   const state = {
     config: {
       apiEnabled: false,
       apiKey: '',
+      maxAttempts: 10,
+      blockDuration: 300,
       files: [] // { path, deleteAfterRead }
     },
     hasUnsavedChanges: false
@@ -80,6 +84,8 @@
     state.config = Object.assign(state.config, data);
     els.apiEnabled.checked = !!state.config.apiEnabled;
     els.apiKey.value = state.config.apiKey || '';
+    els.maxAttempts.value = state.config.maxAttempts || 10;
+    els.blockDuration.value = state.config.blockDuration || 300;
     
     // Temporarily disable change tracking during initial load
     const prevState = state.hasUnsavedChanges;
@@ -236,6 +242,8 @@
     state.config.files = dedupe(files);
     state.config.apiEnabled = els.apiEnabled.checked;
     state.config.apiKey = els.apiKey.value.trim();
+    state.config.maxAttempts = parseInt(els.maxAttempts.value, 10) || 10;
+    state.config.blockDuration = parseInt(els.blockDuration.value, 10) || 300;
     buildEndpointPreview();
     
     // Show unsaved changes warning
@@ -399,6 +407,8 @@
     showToast('Nuova chiave generata');
   });
   els.apiEnabled.addEventListener('change', syncStateFromDOM);
+  els.maxAttempts.addEventListener('change', syncStateFromDOM);
+  els.blockDuration.addEventListener('change', syncStateFromDOM);
   els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast('Riga aggiunta'); });
   els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
   els.btnFetchTree.addEventListener('click', fetchTree);
@@ -424,9 +434,13 @@
     // Reset all values to defaults
     els.apiEnabled.checked = false;
     els.apiKey.value = '';
+    els.maxAttempts.value = 10;
+    els.blockDuration.value = 300;
     state.config = {
       apiEnabled: false,
       apiKey: '',
+      maxAttempts: 10,
+      blockDuration: 300,
       files: []
     };
     renderRows();

@@ -7,6 +7,8 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Rate limiting
 require_once __DIR__ . '/includes/rate-limiter.php';
+require_once __DIR__ . '/includes/brute-force-protection.php';
+
 $rateLimiter = new RateLimiter(60, 60); // 60 requests per minute
 $clientId = $_SERVER['REMOTE_ADDR'] . ':' . ($_GET['api_key'] ?? '');
 
@@ -25,6 +27,8 @@ $configPath = $dataDir . DIRECTORY_SEPARATOR . 'config.json';
 $config = [
   'apiEnabled' => false,
   'apiKey' => '',
+  'maxAttempts' => 10,
+  'blockDuration' => 300,
   'files' => []
 ];
 if (is_file($configPath)) {
@@ -33,6 +37,25 @@ if (is_file($configPath)) {
   if (is_array($cfg)) {
     $config = array_merge($config, $cfg);
   }
+}
+
+// Initialize brute force protection with config values
+$bruteForce = new BruteForceProtection(
+  $config['maxAttempts'] ?? 10,
+  $config['blockDuration'] ?? 300
+);
+
+$clientIp = $_SERVER['REMOTE_ADDR'];
+
+// Check if IP is blocked
+if ($bruteForce->isBlocked($clientIp)) {
+  $remainingTime = $bruteForce->getRemainingBlockTime($clientIp);
+  http_response_code(403);
+  echo json_encode([
+    'error' => 'Too many failed attempts. IP blocked.',
+    'retry_after' => $remainingTime
+  ]);
+  exit;
 }
 
 // Auth with hash verification
@@ -54,9 +77,20 @@ if (!empty($config['apiKeyHash'])) {
 }
 
 if (!$authorized) {
+  // Record failed attempt
+  $bruteForce->recordFailedAttempt($clientIp);
+  
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
+}
+
+// Reset attempts on successful authentication
+$bruteForce->resetAttempts($clientIp);
+
+// Clean old files periodically (1% chance)
+if (rand(1, 100) === 1) {
+  $bruteForce->cleanOldFiles();
 }
 
 // Helpers
