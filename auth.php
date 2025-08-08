@@ -70,11 +70,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   // Check credentials
   if ($username === $adminConfig['username']) {
-    if (!empty($adminConfig['passwordHash'])) {
+    // Check for temporary password from reset
+    if (!empty($adminConfig['tempPassword']) && $password === $adminConfig['tempPassword']) {
+      // Check if reset hasn't expired (1 hour)
+      if (!empty($adminConfig['passwordResetExpiry'])) {
+        $expiryTime = strtotime($adminConfig['passwordResetExpiry']);
+        if (time() > $expiryTime) {
+          // Reset expired
+          unset($adminConfig['tempPassword']);
+          unset($adminConfig['passwordResetExpiry']);
+          file_put_contents($adminConfigPath, json_encode($adminConfig, JSON_PRETTY_PRINT));
+          $authenticated = false;
+        } else {
+          // Valid temporary password
+          $authenticated = true;
+          $_SESSION['must_change_password'] = true;
+        }
+      } else {
+        // No expiry set, accept temp password
+        $authenticated = true;
+        $_SESSION['must_change_password'] = true;
+      }
+    } else if (!empty($adminConfig['passwordHash'])) {
       // Verify against hash
       $authenticated = password_verify($password, $adminConfig['passwordHash']);
-    } else {
-      // First login with temp password
+    } else if (!empty($adminConfig['tempPassword'])) {
+      // First login with default temp password
       if ($password === $adminConfig['tempPassword']) {
         $authenticated = true;
         // Hash the password for future use
@@ -147,10 +168,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
   }
   
+  // Get profile data from admin config
+  $profileData = [];
+  if ($authenticated && file_exists($adminConfigPath)) {
+    $adminData = json_decode(file_get_contents($adminConfigPath), true);
+    $profileData = [
+      'nickname' => $adminData['nickname'] ?? '',
+      'email' => $adminData['email'] ?? ''
+    ];
+  }
+  
   echo json_encode([
     'authenticated' => $authenticated,
     'username' => $_SESSION['admin_username'] ?? null,
-    'sessionTimeout' => $config['sessionTimeout'] ?? 30
+    'sessionTimeout' => $config['sessionTimeout'] ?? 30,
+    'nickname' => $profileData['nickname'] ?? '',
+    'email' => $profileData['email'] ?? ''
   ]);
   exit;
 }

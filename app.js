@@ -33,6 +33,11 @@
     btnChangePassword: qs('#btn-change-password'),
     passwordStrength: qs('#password-strength'),
     adminUsername: qs('#admin-username'),
+    adminEmail: qs('#admin-email'),
+    adminNickname: qs('#admin-nickname'),
+    userNickname: qs('#user-nickname'),
+    userEmail: qs('#user-email'),
+    btnSaveProfile: qs('#btn-save-profile'),
     sessionExpires: qs('#session-expires'),
   };
 
@@ -584,6 +589,133 @@
     applyTheme(current === 'dark' ? 'light' : 'dark');
   });
   
+  // Validate profile fields
+  function validateProfileFields() {
+    const nickname = els.userNickname?.value.trim() || '';
+    const email = els.userEmail?.value.trim() || '';
+    let isValid = true;
+    let errors = [];
+    
+    // Clear previous errors
+    els.userNickname?.classList.remove('error');
+    els.userEmail?.classList.remove('error');
+    
+    // Email is required
+    if (!email) {
+      els.userEmail?.classList.add('error');
+      showFieldError(els.userEmail, 'Email obbligatoria');
+      errors.push('Email obbligatoria');
+      isValid = false;
+    } else if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      els.userEmail?.classList.add('error');
+      showFieldError(els.userEmail, 'Email non valida');
+      errors.push('Email non valida');
+      isValid = false;
+    } else {
+      clearFieldError(els.userEmail);
+    }
+    
+    // Nickname validation (optional but if provided, min 3 chars)
+    if (nickname && nickname.length < 3) {
+      els.userNickname?.classList.add('error');
+      showFieldError(els.userNickname, 'Minimo 3 caratteri');
+      errors.push('Nickname minimo 3 caratteri');
+      isValid = false;
+    } else {
+      clearFieldError(els.userNickname);
+    }
+    
+    return { isValid, errors };
+  }
+  
+  // Add validation on input
+  els.userEmail && els.userEmail.addEventListener('input', () => {
+    validateProfileFields();
+  });
+  
+  els.userNickname && els.userNickname.addEventListener('input', () => {
+    validateProfileFields();
+  });
+  
+  // Save profile handler
+  els.btnSaveProfile && els.btnSaveProfile.addEventListener('click', async () => {
+    const nickname = els.userNickname?.value.trim() || '';
+    const email = els.userEmail?.value.trim() || '';
+    
+    // Validate
+    const validation = validateProfileFields();
+    if (!validation.isValid) {
+      return;
+    }
+    
+    try {
+      els.btnSaveProfile.disabled = true;
+      els.btnSaveProfile.textContent = 'Salvataggio...';
+      
+      const response = await fetch('save-profile.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, email })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update display
+        if (els.adminEmail) {
+          els.adminEmail.textContent = email;
+          els.adminEmail.classList.remove('not-configured');
+        }
+        if (els.adminNickname) {
+          if (nickname) {
+            els.adminNickname.textContent = nickname;
+            els.adminNickname.classList.remove('not-configured');
+          } else {
+            els.adminNickname.textContent = 'Non configurato';
+            els.adminNickname.classList.add('not-configured');
+          }
+        }
+        
+        // Show success banner
+        showSuccessBanner('✅ Profilo salvato con successo!');
+        
+        // Add success animation to button
+        els.btnSaveProfile.style.background = 'linear-gradient(90deg,#10b981,#059669)';
+        els.btnSaveProfile.style.animation = 'success-pulse 0.5s ease';
+        els.btnSaveProfile.textContent = '✓ Salvato!';
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          els.btnSaveProfile.style.background = '';
+          els.btnSaveProfile.style.animation = '';
+          els.btnSaveProfile.textContent = 'Salva Profilo';
+        }, 2000);
+        
+        // Clear any previous errors
+        clearAllFieldErrors();
+      } else {
+        showFormError(data.error || 'Errore nel salvataggio');
+        els.btnSaveProfile.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
+        setTimeout(() => {
+          els.btnSaveProfile.style.background = '';
+        }, 2000);
+      }
+    } catch (error) {
+      showFormError('Errore di connessione');
+      els.btnSaveProfile.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
+      setTimeout(() => {
+        els.btnSaveProfile.style.background = '';
+      }, 2000);
+    } finally {
+      setTimeout(() => {
+        els.btnSaveProfile.disabled = false;
+        if (els.btnSaveProfile.textContent !== 'Salva Profilo') {
+          els.btnSaveProfile.textContent = 'Salva Profilo';
+        }
+      }, 2000);
+    }
+  });
+  
   // Logout handler
   els.btnLogout && els.btnLogout.addEventListener('click', async () => {
     if (confirm('Sei sicuro di voler uscire?')) {
@@ -979,9 +1111,34 @@
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       
-      // Update username display
+      // Update user display
       if (els.adminUsername) {
         els.adminUsername.textContent = data.username || 'admin';
+      }
+      if (els.adminEmail) {
+        if (data.email) {
+          els.adminEmail.textContent = data.email;
+          els.adminEmail.classList.remove('not-configured');
+        } else {
+          els.adminEmail.textContent = 'Non configurata';
+          els.adminEmail.classList.add('not-configured');
+        }
+      }
+      if (els.adminNickname) {
+        if (data.nickname) {
+          els.adminNickname.textContent = data.nickname;
+          els.adminNickname.classList.remove('not-configured');
+        } else {
+          els.adminNickname.textContent = 'Non configurato';
+          els.adminNickname.classList.add('not-configured');
+        }
+      }
+      // Load profile data into form
+      if (data.nickname && els.userNickname) {
+        els.userNickname.value = data.nickname;
+      }
+      if (data.email && els.userEmail) {
+        els.userEmail.value = data.email;
       }
       
       // Store session timeout from server

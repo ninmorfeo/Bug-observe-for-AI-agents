@@ -142,6 +142,15 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .info-box p:last-child{margin-bottom:0}
 .info-box strong{color:var(--text)}
 
+/* Account Fields */
+.account-fields{display:flex;flex-direction:column;gap:0px}
+.account-fields .field-row{display:flex;flex-direction:column;gap:8px}
+.account-fields label{font-weight:500;font-size:13px;color:var(--text)}
+.account-fields input[type=text],
+.account-fields input[type=email]{padding:10px 12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);border-radius:8px;font-size:14px;transition:all .2s ease}
+.account-fields input[type=text]:focus,
+.account-fields input[type=email]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.25)}
+
 /* Password Management */
 .password-change-form{display:flex;flex-direction:column;gap:16px}
 .password-change-form .field-row{display:flex;flex-direction:column;gap:8px}
@@ -161,6 +170,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .info-item:last-child{border-bottom:none}
 .info-item strong{color:var(--muted);font-weight:500;margin-right:8px}
 .info-item span{color:var(--text)}
+.info-item span.not-configured{color:#ef4444;font-style:italic}
 
 /* Security and Account Unified */
 .security-unified{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
@@ -186,6 +196,12 @@ button:disabled{opacity:.6;cursor:not-allowed}
 @keyframes pulse-red {
   0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); }
   50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3); }
+}
+
+@keyframes success-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 .api-status-active {

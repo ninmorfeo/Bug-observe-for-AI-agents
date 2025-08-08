@@ -119,7 +119,22 @@
       <h2>🔐 Sicurezza e Account</h2>
       <div class="columns">
         <div class="col">
-          <h3>Cambia Password</h3>
+          <h3>Dati Personali</h3>
+          <div class="account-fields">
+            <div class="field-row compact">
+              <label for="user-nickname">Nickname</label>
+              <input id="user-nickname" type="text" placeholder="SuperAdmin" />
+              <small class="field-help">Nome visualizzato nel sistema</small>
+            </div>
+            <div class="field-row compact">
+              <label for="user-email">Email <span style="color:#ef4444">*</span></label>
+              <input id="user-email" type="email" placeholder="admin@example.com" required />
+              <small class="field-help">Obbligatoria per il recupero password</small>
+            </div>
+            <button id="btn-save-profile" class="primary" style="margin-top:12px">Salva Profilo</button>
+          </div>
+          
+          <h3 style="margin-top:30px">Cambia Password</h3>
           <div class="password-change-form">
             <div class="field-row">
               <label for="current-password">Password Attuale</label>
@@ -145,18 +160,28 @@
           </div>
         </div>
         <div class="col">
-          <h3>Impostazioni di Sicurezza</h3>
+          <h3>Stato Sessione</h3>
+          <div class="session-status" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:20px">
+            <div class="info-item" style="font-size:16px;text-align:center">
+              <strong>⏱️ Sessione scade tra:</strong> <span id="session-expires" style="font-weight:600;color:var(--accent)">-</span>
+            </div>
+          </div>
+          
+          <h3>Informazioni Account</h3>
           <div class="security-unified">
             <div class="account-status">
               <div class="info-item">
-                <strong>👤 Account:</strong> <span id="admin-username">admin</span>
+                <strong>👤 Username:</strong> <span id="admin-username">admin</span>
               </div>
               <div class="info-item">
-                <strong>⏱️ Sessione scade tra:</strong> <span id="session-expires">-</span>
+                <strong>🎭 Nickname:</strong> <span id="admin-nickname" class="not-configured">Non configurato</span>
+              </div>
+              <div class="info-item">
+                <strong>📧 Email:</strong> <span id="admin-email" class="not-configured">Non configurata</span>
               </div>
             </div>
             
-            <div class="security-controls">
+            <div class="security-controls" style="margin-top:20px">
               <h4>Protezione Brute Force</h4>
               <div class="field-row compact">
                 <label for="max-attempts">Tentativi massimi login</label>

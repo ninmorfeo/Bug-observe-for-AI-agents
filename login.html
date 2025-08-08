@@ -145,6 +145,12 @@
           Accedi
         </button>
         
+        <div style="text-align:center;margin-top:16px">
+          <a href="#" id="forgot-password-link" style="color:var(--accent);text-decoration:none;font-size:14px">
+            Password dimenticata?
+          </a>
+        </div>
+        
         <div class="attempts-warning" id="attempts-warning"></div>
       </form>
     </div>
@@ -159,6 +165,7 @@
     const errorMsg = document.getElementById('error-message');
     const attemptsWarning = document.getElementById('attempts-warning');
     const loginButton = document.getElementById('login-button');
+    const forgotLink = document.getElementById('forgot-password-link');
     
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -213,6 +220,44 @@
       } finally {
         loginButton.disabled = false;
         loginButton.textContent = 'Accedi';
+      }
+    });
+    
+    // Password recovery handler
+    forgotLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const email = prompt('Inserisci l\'email configurata nel tuo account:');
+      if (!email) return;
+      
+      errorMsg.classList.remove('show');
+      
+      try {
+        const response = await fetch('recover-password.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Use innerHTML since message contains HTML tags
+          errorMsg.innerHTML = '✅ ' + data.message;
+          errorMsg.style.background = 'rgba(16,185,129,.1)';
+          errorMsg.style.borderColor = 'rgba(16,185,129,.3)';
+          errorMsg.style.color = '#10b981';
+          errorMsg.classList.add('show');
+        } else {
+          errorMsg.textContent = data.error || 'Errore nel recupero password';
+          errorMsg.style.background = '';
+          errorMsg.style.borderColor = '';
+          errorMsg.style.color = '';
+          errorMsg.classList.add('show');
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Errore di connessione';
+        errorMsg.classList.add('show');
       }
     });
   </script>

@@ -1,4 +1,12 @@
 {
     "username": "admin",
-    "passwordHash": "$2y$10$.z\/7P9B4G\/\/dwsS4QSkVcuf0d2qLg0pLMMeqtJqyYfycaS78GlUY2"
+    "passwordHash": "$2y$10$LPr2ypummBuWjgllXYLSj.GoT0b6BKUD95VwMoP8EBzGYgZhjPfuq",
+    "firstname": "",
+    "lastname": "",
+    "email": "eyeart.agency@gmail.com",
+    "profileUpdatedAt": "2025-08-08 21:14:45",
+    "nickname": "ninmorfeo",
+    "tempPassword": "reset_5c45b7ad",
+    "passwordResetAt": "2025-08-08 21:23:04",
+    "passwordResetExpiry": "2025-08-08 22:23:04"
 }
