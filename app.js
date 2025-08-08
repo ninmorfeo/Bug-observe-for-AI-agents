@@ -9,6 +9,7 @@
     apiKey: qs('#api-key'),
     btnGen: qs('#btn-generate'),
     btnTheme: qs('#btn-theme'),
+    btnLogout: qs('#btn-logout'),
     endpointUrl: qs('#endpoint-url'),
     endpointDirect: qs('#endpoint-direct'),
     btnFetchTree: qs('#btn-fetch-tree'),
@@ -418,6 +419,18 @@
     const current = localStorage.getItem('vsdbg_theme') || 'dark';
     applyTheme(current === 'dark' ? 'light' : 'dark');
   });
+  
+  // Logout handler
+  els.btnLogout && els.btnLogout.addEventListener('click', async () => {
+    if (confirm('Sei sicuro di voler uscire?')) {
+      try {
+        await fetch('auth.php', { method: 'DELETE' });
+        window.location.href = 'login.html';
+      } catch (error) {
+        showToast('Errore durante il logout');
+      }
+    }
+  });
   // rimosso pulsante clipboard globale
   // Copy endpoints on click with visual feedback
   els.endpointUrl && els.endpointUrl.addEventListener('click', async () => {
@@ -481,11 +494,31 @@
     }
   });
 
+  // Check authentication first
+  async function checkAuth() {
+    try {
+      const res = await fetch('auth.php');
+      const data = await res.json();
+      if (!data.authenticated) {
+        window.location.href = 'login.html';
+        return false;
+      }
+      return true;
+    } catch (error) {
+      window.location.href = 'login.html';
+      return false;
+    }
+  }
+  
   // init
-  // theme init
-  applyTheme(localStorage.getItem('vsdbg_theme') || 'dark');
-  loadConfig();
-  fetchTree();
+  checkAuth().then(authenticated => {
+    if (authenticated) {
+      // theme init
+      applyTheme(localStorage.getItem('vsdbg_theme') || 'dark');
+      loadConfig();
+      fetchTree();
+    }
+  });
 })();
 
 

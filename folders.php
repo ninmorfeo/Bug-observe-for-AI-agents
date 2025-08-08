@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/includes/session-check.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // Explore a base directory and return a filtered tree of folders and log-like files
