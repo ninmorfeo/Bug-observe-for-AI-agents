@@ -26,6 +26,7 @@
     btnDownloadHtaccess: qs('#btn-download-htaccess'),
     maxAttempts: qs('#max-attempts'),
     blockDuration: qs('#block-duration'),
+    sessionTimeout: qs('#session-timeout'),
     currentPassword: qs('#current-password'),
     newPassword: qs('#new-password'),
     confirmPassword: qs('#confirm-password'),
@@ -41,6 +42,7 @@
       apiKey: '',
       maxAttempts: 10,
       blockDuration: 300,
+      sessionTimeout: 30,
       files: [] // { path, deleteAfterRead }
     },
     hasUnsavedChanges: false
@@ -94,6 +96,7 @@
     els.apiKey.value = state.config.apiKey || '';
     els.maxAttempts.value = state.config.maxAttempts || 10;
     els.blockDuration.value = state.config.blockDuration || 300;
+    els.sessionTimeout.value = state.config.sessionTimeout || 30;
     
     // Temporarily disable change tracking during initial load
     const prevState = state.hasUnsavedChanges;
@@ -252,6 +255,7 @@
     state.config.apiKey = els.apiKey.value.trim();
     state.config.maxAttempts = parseInt(els.maxAttempts.value, 10) || 10;
     state.config.blockDuration = parseInt(els.blockDuration.value, 10) || 300;
+    state.config.sessionTimeout = parseInt(els.sessionTimeout.value, 10) || 30;
     buildEndpointPreview();
     
     // Show unsaved changes warning
@@ -417,6 +421,7 @@
   els.apiEnabled.addEventListener('change', syncStateFromDOM);
   els.maxAttempts.addEventListener('change', syncStateFromDOM);
   els.blockDuration.addEventListener('change', syncStateFromDOM);
+  els.sessionTimeout && els.sessionTimeout.addEventListener('change', syncStateFromDOM);
   els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast('Riga aggiunta'); });
   els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
   els.btnFetchTree.addEventListener('click', fetchTree);
@@ -515,11 +520,13 @@
     els.apiKey.value = '';
     els.maxAttempts.value = 10;
     els.blockDuration.value = 300;
+    els.sessionTimeout.value = 30;
     state.config = {
       apiEnabled: false,
       apiKey: '',
       maxAttempts: 10,
       blockDuration: 300,
+      sessionTimeout: 30,
       files: []
     };
     renderRows();
@@ -615,9 +622,16 @@
   function updateSessionTimer() {
     if (!els.sessionExpires) return;
     
+    const sessionTimeoutMinutes = state.config.sessionTimeout || 30;
+    const sessionTimeoutMs = sessionTimeoutMinutes * 60000;
+    let lastActivity = Date.now();
+    
+    // Reset activity on any user interaction
+    document.addEventListener('click', () => { lastActivity = Date.now(); });
+    document.addEventListener('keypress', () => { lastActivity = Date.now(); });
+    
     const updateTimer = () => {
-      const lastActivity = Date.now();
-      const expiresIn = 1800000 - (Date.now() - lastActivity); // 30 minutes in ms
+      const expiresIn = sessionTimeoutMs - (Date.now() - lastActivity);
       
       if (expiresIn <= 0) {
         els.sessionExpires.textContent = 'Sessione scaduta';

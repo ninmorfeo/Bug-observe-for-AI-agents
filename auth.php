@@ -10,6 +10,7 @@ header('Content-Type: application/json; charset=utf-8');
 $dataDir = __DIR__ . DIRECTORY_SEPARATOR . 'data';
 @mkdir($dataDir, 0755, true);
 $adminConfigPath = $dataDir . DIRECTORY_SEPARATOR . 'admin.json';
+$configPath = $dataDir . DIRECTORY_SEPARATOR . 'config.json';
 
 // Default admin credentials (will be hashed on first save)
 $defaultAdmin = [
@@ -27,8 +28,24 @@ if (file_exists($adminConfigPath)) {
   }
 }
 
-// Initialize brute force protection for admin login
-$bruteForce = new BruteForceProtection(5, 900); // 5 attempts, 15 min block
+// Load main config for security settings
+$config = [
+  'maxAttempts' => 10,
+  'blockDuration' => 300,
+  'sessionTimeout' => 30
+];
+if (file_exists($configPath)) {
+  $loaded = json_decode(file_get_contents($configPath), true);
+  if ($loaded) {
+    $config = array_merge($config, $loaded);
+  }
+}
+
+// Initialize brute force protection using config values
+$bruteForce = new BruteForceProtection(
+  $config['maxAttempts'] ?? 10,
+  $config['blockDuration'] ?? 300
+);
 $clientIp = $_SERVER['REMOTE_ADDR'];
 
 // Check if IP is blocked
@@ -116,10 +133,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   $authenticated = !empty($_SESSION['admin_authenticated']);
   
-  // Check session timeout (30 minutes of inactivity)
+  // Check session timeout using config value
   if ($authenticated) {
+    $sessionTimeoutMinutes = $config['sessionTimeout'] ?? 30;
     $inactive = time() - ($_SESSION['last_activity'] ?? 0);
-    if ($inactive > 1800) {
+    
+    if ($inactive > ($sessionTimeoutMinutes * 60)) {
       session_destroy();
       $authenticated = false;
     } else {
@@ -129,7 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   
   echo json_encode([
     'authenticated' => $authenticated,
-    'username' => $_SESSION['admin_username'] ?? null
+    'username' => $_SESSION['admin_username'] ?? null,
+    'sessionTimeout' => $config['sessionTimeout'] ?? 30
   ]);
   exit;
 }

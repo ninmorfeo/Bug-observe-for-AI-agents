@@ -58,22 +58,6 @@
               <button id="btn-generate" class="danger">Genera Nuova Chiave API</button>
             </div>
           </div>
-          <div class="security-settings">
-            <h3>🔒 Impostazioni Sicurezza</h3>
-            <p class="hint">Protezione contro attacchi brute force</p>
-            <div class="security-fields">
-              <div class="field-row">
-                <label for="max-attempts">Tentativi Massimi</label>
-                <input id="max-attempts" type="number" min="3" max="100" value="10" />
-                <small class="field-help">Numero massimo di tentativi falliti prima del blocco IP</small>
-              </div>
-              <div class="field-row">
-                <label for="block-duration">Durata Blocco (secondi)</label>
-                <input id="block-duration" type="number" min="60" max="86400" value="300" />
-                <small class="field-help">Durata del blocco (300 = 5 minuti)</small>
-              </div>
-            </div>
-          </div>
         </div>
         <div>
           <h3>Stato del Sistema</h3>
@@ -145,7 +129,7 @@
     </section>
 
     <section class="panel">
-      <h2>🔑 Gestione Credenziali Admin</h2>
+      <h2>🔐 Sicurezza e Account</h2>
       <div class="columns">
         <div class="col">
           <h3>Cambia Password</h3>
@@ -168,26 +152,40 @@
           </div>
         </div>
         <div class="col">
-          <h3>Informazioni Account</h3>
-          <div class="account-info">
-            <div class="info-item">
-              <strong>Username:</strong> <span id="admin-username">admin</span>
+          <h3>Impostazioni di Sicurezza</h3>
+          <div class="security-unified">
+            <div class="account-status">
+              <div class="info-item">
+                <strong>👤 Account:</strong> <span id="admin-username">admin</span>
+              </div>
+              <div class="info-item">
+                <strong>⏱️ Sessione scade tra:</strong> <span id="session-expires">-</span>
+              </div>
             </div>
-            <div class="info-item">
-              <strong>Ultimo accesso:</strong> <span id="last-login">-</span>
+            
+            <div class="security-controls">
+              <h4>Protezione Brute Force</h4>
+              <div class="field-row compact">
+                <label for="max-attempts">Tentativi massimi login</label>
+                <input id="max-attempts" type="number" min="3" max="100" value="10" />
+                <small class="field-help">Tentativi prima del blocco IP</small>
+              </div>
+              
+              <div class="field-row compact">
+                <label for="block-duration">Durata blocco (secondi)</label>
+                <input id="block-duration" type="number" min="60" max="86400" value="300" />
+                <small class="field-help">Tempo di blocco dopo tentativi falliti</small>
+              </div>
+              
+              <div class="field-row compact">
+                <label for="session-timeout">Timeout sessione (minuti)</label>
+                <input id="session-timeout" type="number" min="5" max="1440" value="30" />
+                <small class="field-help">Logout automatico dopo inattività</small>
+              </div>
             </div>
-            <div class="info-item">
-              <strong>Sessione scade tra:</strong> <span id="session-expires">-</span>
-            </div>
-            <div class="hint" style="margin-top: 20px;">
-              <p><strong>Suggerimenti password sicura:</strong></p>
-              <ul style="margin: 8px 0; padding-left: 20px;">
-                <li>Usa almeno 12 caratteri</li>
-                <li>Includi maiuscole e minuscole</li>
-                <li>Aggiungi numeri e simboli</li>
-                <li>Evita informazioni personali</li>
-                <li>Non riutilizzare password</li>
-              </ul>
+            
+            <div class="security-note">
+              <p class="hint">💡 Queste impostazioni si applicano sia al login admin che all'API endpoint</p>
             </div>
           </div>
         </div>

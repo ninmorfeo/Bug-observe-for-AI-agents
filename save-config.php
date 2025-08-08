@@ -37,6 +37,7 @@ $cfg = [
   'apiKeyHash' => '',
   'maxAttempts' => (int)($data['maxAttempts'] ?? 10),
   'blockDuration' => (int)($data['blockDuration'] ?? 300),
+  'sessionTimeout' => (int)($data['sessionTimeout'] ?? 30),
   'files' => []
 ];
 
@@ -45,6 +46,8 @@ if ($cfg['maxAttempts'] < 3) $cfg['maxAttempts'] = 3;
 if ($cfg['maxAttempts'] > 100) $cfg['maxAttempts'] = 100;
 if ($cfg['blockDuration'] < 60) $cfg['blockDuration'] = 60;
 if ($cfg['blockDuration'] > 86400) $cfg['blockDuration'] = 86400;
+if ($cfg['sessionTimeout'] < 5) $cfg['sessionTimeout'] = 5;
+if ($cfg['sessionTimeout'] > 1440) $cfg['sessionTimeout'] = 1440;
 
 // Hash API key if it's new or changed
 if (!empty($cfg['apiKey'])) {
