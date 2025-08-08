@@ -19,8 +19,35 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 32px;
       box-shadow: 0 4px 6px rgba(0,0,0,.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .login-view, .recovery-view {
+      padding: 32px;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+    }
+    .recovery-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    .panel-content.show-recovery .login-view {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    .panel-content.show-recovery .recovery-view {
+      transform: translateX(0);
+      opacity: 1;
     }
     .login-header {
       text-align: center;
@@ -114,45 +141,139 @@
     .attempts-warning.show {
       display: block;
     }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 20px;
+      padding: 6px 0;
+      transition: all 0.2s ease;
+    }
+    .back-link:hover {
+      transform: translateX(-3px);
+      opacity: 0.8;
+    }
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+    }
+    .recovery-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .recovery-header h2 {
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+    .recovery-header p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .recovery-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .recovery-button {
+      padding: 12px 24px;
+      background: linear-gradient(90deg,#059669,#10b981);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .recovery-button:hover {
+      box-shadow: 0 0 0 2px rgba(16,185,129,.35), 0 0 10px rgba(16,185,129,.3);
+      transform: translateY(-1px);
+    }
+    .recovery-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-panel">
-      <div class="login-header">
-        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0110 0v4"></path>
-        </svg>
-        <h1>BugObserve for AI Agents</h1>
-        <p>Accesso Amministratore</p>
-      </div>
-      
-      <form class="login-form" id="login-form">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" required autocomplete="username" />
+      <div class="panel-content" id="panel-content">
+        <!-- Login View -->
+        <div class="login-view">
+          <div class="login-header">
+            <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0110 0v4"></path>
+            </svg>
+            <h1>BugObserve for AI Agents</h1>
+            <p>Accesso Amministratore</p>
+          </div>
+          
+          <form class="login-form" id="login-form">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required autocomplete="username" />
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" required autocomplete="current-password" />
+            </div>
+            
+            <div class="error-message" id="error-message"></div>
+            
+            <button type="submit" class="login-button" id="login-button">
+              Accedi
+            </button>
+            
+            <div style="text-align:center;margin-top:16px">
+              <a href="#" id="forgot-password-link" style="color:var(--accent);text-decoration:none;font-size:14px">
+                Password dimenticata?
+              </a>
+            </div>
+            
+            <div class="attempts-warning" id="attempts-warning"></div>
+          </form>
         </div>
         
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required autocomplete="current-password" />
-        </div>
-        
-        <div class="error-message" id="error-message"></div>
-        
-        <button type="submit" class="login-button" id="login-button">
-          Accedi
-        </button>
-        
-        <div style="text-align:center;margin-top:16px">
-          <a href="#" id="forgot-password-link" style="color:var(--accent);text-decoration:none;font-size:14px">
-            Password dimenticata?
+        <!-- Recovery View -->
+        <div class="recovery-view">
+          <a href="#" class="back-link" id="back-to-login">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Torna al login
           </a>
+          
+          <div class="recovery-header">
+            <svg style="width:48px;height:48px;margin:0 auto 16px;color:var(--accent);display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <h2>Recupero Password</h2>
+            <p>Inserisci l'email associata al tuo account.<br>Ti invieremo una password temporanea.</p>
+          </div>
+          
+          <form class="recovery-form" id="recovery-form">
+            <div class="form-group">
+              <label for="recovery-email">Email</label>
+              <input type="email" id="recovery-email" name="email" required placeholder="esempio@email.com" />
+            </div>
+            
+            <div class="error-message" id="recovery-error" style="display:none"></div>
+            
+            <button type="submit" class="recovery-button" id="recovery-button">
+              Invia Password Temporanea
+            </button>
+          </form>
         </div>
-        
-        <div class="attempts-warning" id="attempts-warning"></div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -166,6 +287,34 @@
     const attemptsWarning = document.getElementById('attempts-warning');
     const loginButton = document.getElementById('login-button');
     const forgotLink = document.getElementById('forgot-password-link');
+    const panelContent = document.getElementById('panel-content');
+    const backToLogin = document.getElementById('back-to-login');
+    const recoveryForm = document.getElementById('recovery-form');
+    const recoveryError = document.getElementById('recovery-error');
+    const recoveryButton = document.getElementById('recovery-button');
+    
+    // Show recovery form with slide animation
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      panelContent.classList.add('show-recovery');
+      // Clear any previous errors
+      recoveryError.style.display = 'none';
+      recoveryError.textContent = '';
+      document.getElementById('recovery-email').value = '';
+      // Focus on email input after animation
+      setTimeout(() => {
+        document.getElementById('recovery-email').focus();
+      }, 400);
+    });
+    
+    // Back to login
+    backToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      panelContent.classList.remove('show-recovery');
+      // Clear recovery form
+      recoveryError.style.display = 'none';
+      document.getElementById('recovery-email').value = '';
+    });
     
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -223,14 +372,16 @@
       }
     });
     
-    // Password recovery handler
-    forgotLink.addEventListener('click', async (e) => {
+    // Password recovery form handler
+    recoveryForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const email = prompt('Inserisci l\'email configurata nel tuo account:');
+      const email = document.getElementById('recovery-email').value.trim();
       if (!email) return;
       
-      errorMsg.classList.remove('show');
+      recoveryError.style.display = 'none';
+      recoveryButton.disabled = true;
+      recoveryButton.textContent = 'Invio in corso...';
       
       try {
         const response = await fetch('recover-password.php', {
@@ -243,21 +394,31 @@
         
         if (data.success) {
           // Use innerHTML since message contains HTML tags
-          errorMsg.innerHTML = '✅ ' + data.message;
-          errorMsg.style.background = 'rgba(16,185,129,.1)';
-          errorMsg.style.borderColor = 'rgba(16,185,129,.3)';
-          errorMsg.style.color = '#10b981';
-          errorMsg.classList.add('show');
+          recoveryError.innerHTML = '✅ ' + data.message;
+          recoveryError.style.background = 'rgba(16,185,129,.1)';
+          recoveryError.style.borderColor = 'rgba(16,185,129,.3)';
+          recoveryError.style.color = '#10b981';
+          recoveryError.style.display = 'block';
+          
+          // After 5 seconds, go back to login
+          setTimeout(() => {
+            panelContent.classList.remove('show-recovery');
+            recoveryError.style.display = 'none';
+            document.getElementById('recovery-email').value = '';
+          }, 5000);
         } else {
-          errorMsg.textContent = data.error || 'Errore nel recupero password';
-          errorMsg.style.background = '';
-          errorMsg.style.borderColor = '';
-          errorMsg.style.color = '';
-          errorMsg.classList.add('show');
+          recoveryError.textContent = data.error || 'Errore nel recupero password';
+          recoveryError.style.background = '';
+          recoveryError.style.borderColor = '';
+          recoveryError.style.color = '';
+          recoveryError.style.display = 'block';
         }
       } catch (error) {
-        errorMsg.textContent = 'Errore di connessione';
-        errorMsg.classList.add('show');
+        recoveryError.textContent = 'Errore di connessione';
+        recoveryError.style.display = 'block';
+      } finally {
+        recoveryButton.disabled = false;
+        recoveryButton.textContent = 'Invia Password Temporanea';
       }
     });
   </script>
