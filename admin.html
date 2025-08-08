@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VS Code Debug 2.0 – Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <h1>VS Code Debug 2.0</h1>
+      <p class="subtitle">Amministrazione endpoint log</p>
+    </div>
+    <div class="header-actions">
+      <button id="btn-theme" class="icon-btn" title="Tema notte/chiaro" aria-label="Tema notte/chiaro" data-mode="dark">
+        <svg class="svg-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" />
+        </svg>
+        <svg class="svg-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" fill="currentColor" />
+        </svg>
+      </button>
+      <a id="btn-bug" class="icon-btn" href="mailto:eyeart.agency@gmail.com?subject=Segnalazione%20bug%20VS%20Code%20Debug%202.0" title="Segnala un bug" aria-label="Segnala un bug">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="2" />
+          <ellipse cx="12" cy="14" rx="5" ry="6" />
+          <path d="M7 14h10M6 11l3 2M18 11l-3 2M6 17l3-2M18 17l-3-2" />
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>Configurazione API Log</h2>
+      <div class="grid-2">
+        <div>
+          <label class="toggle">
+            <input type="checkbox" id="api-enabled" />
+            <span>Abilita API</span>
+          </label>
+          <div class="field-row">
+            <label for="api-key">Chiave API</label>
+            <div class="inline">
+              <input id="api-key" type="text" readonly>
+              <button id="btn-generate" class="danger">Genera Nuova Chiave API</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Stato del Sistema</h3>
+          <div class="status">
+            <div>
+              <small>Endpoint API</small>
+              <code id="endpoint-url" class="copyable" data-tip="Clicca per copiare" aria-label="Clicca per copiare"></code>
+            </div>
+            <div>
+              <small>URL Controllo / Accesso Diretto</small>
+              <code id="endpoint-direct" class="copyable" data-tip="Clicca per copiare" aria-label="Clicca per copiare"></code>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="columns">
+        <div class="col">
+          <h2>Nomi file di log da esaminare</h2>
+          <div id="drop-hint" class="hint">Trascina qui i file di log dal riquadro a destra</div>
+          <ul id="log-list" class="log-list" aria-live="polite"></ul>
+          <div class="actions">
+            <button id="btn-add-row" class="secondary">Aggiungi riga</button>
+            <button id="btn-save" class="primary">Salva configurazione</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="header-row">
+            <h2>Struttura cartelle</h2>
+            <div class="inline">
+              <button id="btn-fetch-tree" class="secondary">Fetch cartelle</button>
+              <button id="btn-expand-all" class="secondary">Espandi tutto</button>
+              <button id="btn-collapse-all" class="secondary">Comprimi tutto</button>
+            </div>
+          </div>
+          <div id="tree-container" class="tree" role="tree"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="columns">
+        <div class="col">
+          <h2>Test endpoint</h2>
+          <button id="btn-test" class="primary">Testa endpoint</button>
+          <pre id="test-output" class="output" aria-live="polite"></pre>
+        </div>
+        <div class="col">
+          <h2>Reset completo</h2>
+          <div class="danger-box">
+            <p>Questa operazione:</nobr></p>
+            <ul>
+              <li>Rigenera una nuova chiave API</li>
+              <li>Reimposta la configurazione</li>
+              <li>Pulisce la lista dei file</li>
+            </ul>
+            <button id="btn-reset" class="danger">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <footer class="app-footer">
+    <small>VS Code Debug 2.0 – Standalone utility</small>
+  </footer>
+
+  <template id="row-template">
+    <li class="log-row">
+      <div class="drag-handle" draggable="true" title="Trascina per riordinare">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="8" cy="6" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="6" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="18" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <input type="text" class="path" readonly placeholder="/percorso/al/file.log" />
+      <button class="remove">Rimuovi</button>
+      <button class="expand" title="Opzioni / Filtri" aria-label="Espandi opzioni">
+        <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </button>
+      <div class="details">
+        <label class="field">
+          <span>Da data</span>
+          <input type="date" class="from-date" />
+        </label>
+        <label class="field">
+          <span>Ora</span>
+          <input type="time" class="from-time" step="1" />
+        </label>
+        <label class="chk">
+          <input type="checkbox" class="hide-log" /> Non mostrare
+        </label>
+        <label class="chk">
+          <input type="checkbox" class="force-date" /> Forza filtro data
+        </label>
+        <label class="chk">
+          <input type="checkbox" class="delete-after" /> Cancella dopo la lettura
+        </label>
+      </div>
+    </li>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
