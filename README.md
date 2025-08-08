@@ -1,6 +1,14 @@
 # BugObserve for AI Agents 🤖
 
-[![Donate with PayPal](https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)](https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development)
+![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
+![Requires PHP](https://img.shields.io/badge/Requires%20PHP-7.0%2B-purple.svg)
+![Tested up to PHP](https://img.shields.io/badge/Tested%20up%20to%20PHP-8.2-green.svg)
+![License](https://img.shields.io/badge/license-MIT-red.svg)
+
+**Offrimi un caffè ☕**  
+<a href="https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development">
+  <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
+</a>
 
 ## Version 2.0 - Standalone Edition
 
