@@ -107,25 +107,9 @@
     </section>
 
     <section class="panel">
-      <div class="columns">
-        <div class="col">
-          <h2>Test endpoint</h2>
-          <button id="btn-test" class="primary">Testa endpoint</button>
-          <pre id="test-output" class="output" aria-live="polite"></pre>
-        </div>
-        <div class="col">
-          <h2>Reset completo</h2>
-          <div class="danger-box">
-            <p>Questa operazione:</nobr></p>
-            <ul>
-              <li>Rigenera una nuova chiave API</li>
-              <li>Reimposta la configurazione</li>
-              <li>Pulisce la lista dei file</li>
-            </ul>
-            <button id="btn-reset" class="danger">Reset</button>
-          </div>
-        </div>
-      </div>
+      <h2>Test endpoint</h2>
+      <button id="btn-test" class="primary">Testa endpoint</button>
+      <pre id="test-output" class="output" aria-live="polite"></pre>
     </section>
 
     <section class="panel">
@@ -192,24 +176,45 @@
       </div>
     </section>
 
-    <section class="panel security-warning">
-      <h2>⚠️ Sicurezza</h2>
-      <div class="warning-content">
-        <p><strong>ATTENZIONE:</strong> Ricordati di proteggere la tua cartella in ambiente di produzione inserendo un .htaccess corretto!</p>
-        <p>Questo impedirà accessi non autorizzati ai file di configurazione e ai log.</p>
-        <button id="btn-download-htaccess" class="primary">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 6px;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Scarica .htaccess di esempio
-        </button>
-        <small style="display: block; margin-top: 10px; color: var(--muted);">
-          Dopo il download, rinomina il file in .htaccess e posizionalo nella cartella bugobserve-ai-agents
-        </small>
-      </div>
-    </section>
+    <div class="columns">
+      <section class="panel security-warning">
+        <h2>⚠️ Sicurezza</h2>
+        <div class="warning-content">
+          <p><strong>ATTENZIONE:</strong> Ricordati di proteggere la tua cartella in ambiente di produzione inserendo un .htaccess corretto!</p>
+          <p>Questo impedirà accessi non autorizzati ai file di configurazione e ai log.</p>
+          <button id="btn-download-htaccess" class="primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 6px;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Scarica .htaccess di esempio
+          </button>
+          <small style="display: block; margin-top: 10px; color: var(--muted);">
+            Dopo il download, rinomina il file in .htaccess e posizionalo nella cartella bugobserve-ai-agents
+          </small>
+        </div>
+      </section>
+      
+      <section class="panel danger-section">
+        <h2>🔄 Reset completo</h2>
+        <div class="danger-box">
+          <p><strong>⚠️ ATTENZIONE:</strong> Questa operazione:</p>
+          <ul>
+            <li>Rigenera una nuova chiave API</li>
+            <li>Reimposta la configurazione</li>
+            <li>Pulisce la lista dei file</li>
+            <li>Ripristina le impostazioni di sicurezza ai valori predefiniti</li>
+          </ul>
+          <p style="margin-top: 12px; color: var(--danger);">
+            <strong>Questa azione è irreversibile!</strong>
+          </p>
+          <button id="btn-reset" class="danger" style="width: 100%; margin-top: 16px;">
+            🗑️ Esegui Reset Completo
+          </button>
+        </div>
+      </section>
+    </div>
   </main>
 
   <div id="toast" class="toast" aria-live="polite"></div>
