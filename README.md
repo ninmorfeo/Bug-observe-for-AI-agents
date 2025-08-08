@@ -1,5 +1,7 @@
 # BugObserve for AI Agents 🤖
 
+[![Donate with PayPal](https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)](https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development)
+
 ## Version 2.0 - Standalone Edition
 
 A powerful debugging and log monitoring tool designed specifically for AI agents and automated development workflows. This standalone version provides a clean, intuitive interface for managing and monitoring multiple log files in real-time.
