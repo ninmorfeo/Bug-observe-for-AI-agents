@@ -54,16 +54,16 @@
           <div class="security-settings">
             <h3>🔒 Impostazioni Sicurezza</h3>
             <p class="hint">Protezione contro attacchi brute force</p>
-            <div class="inline">
+            <div class="security-fields">
               <div class="field-row">
                 <label for="max-attempts">Tentativi Massimi</label>
                 <input id="max-attempts" type="number" min="3" max="100" value="10" />
-                <small>Numero massimo di tentativi falliti prima del blocco IP</small>
+                <small class="field-help">Numero massimo di tentativi falliti prima del blocco IP</small>
               </div>
               <div class="field-row">
                 <label for="block-duration">Durata Blocco (secondi)</label>
                 <input id="block-duration" type="number" min="60" max="86400" value="300" />
-                <small>Durata del blocco (300 = 5 minuti)</small>
+                <small class="field-help">Durata del blocco (300 = 5 minuti)</small>
               </div>
             </div>
           </div>
