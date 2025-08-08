@@ -132,6 +132,23 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .info-box p:last-child{margin-bottom:0}
 .info-box strong{color:var(--text)}
 
+/* Password Management */
+.password-change-form{display:flex;flex-direction:column;gap:16px}
+.password-change-form .field-row{display:flex;flex-direction:column;gap:8px}
+.password-change-form label{font-weight:500;font-size:13px;color:var(--text)}
+.password-change-form input[type=password]{padding:10px 12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);border-radius:8px;font-size:14px;transition:all .2s ease}
+.password-change-form input[type=password]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.25)}
+.password-strength{height:6px;border-radius:3px;background:var(--border);margin:8px 0;transition:all .3s ease}
+.password-strength.weak{background:linear-gradient(90deg,var(--danger) 33%,var(--border) 33%)}
+.password-strength.medium{background:linear-gradient(90deg,#fbbf24 66%,var(--border) 66%)}
+.password-strength.strong{background:var(--ok)}
+.password-strength-text{font-size:12px;margin-top:4px;color:var(--muted)}
+.account-info{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.info-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.info-item:last-child{border-bottom:none}
+.info-item strong{color:var(--muted);font-weight:500;margin-right:8px}
+.info-item span{color:var(--text)}
+
 /* Security Settings */
 .security-settings{margin-top:20px;padding:16px;background:linear-gradient(135deg,rgba(34,211,238,.05),rgba(14,165,233,.05));border:1px solid rgba(34,211,238,.2);border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.05)}
 [data-theme="light"] .security-settings{background:linear-gradient(135deg,rgba(14,165,233,.08),rgba(6,182,212,.08));border-color:rgba(14,165,233,.3)}

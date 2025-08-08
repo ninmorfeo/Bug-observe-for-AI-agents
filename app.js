@@ -26,6 +26,13 @@
     btnDownloadHtaccess: qs('#btn-download-htaccess'),
     maxAttempts: qs('#max-attempts'),
     blockDuration: qs('#block-duration'),
+    currentPassword: qs('#current-password'),
+    newPassword: qs('#new-password'),
+    confirmPassword: qs('#confirm-password'),
+    btnChangePassword: qs('#btn-change-password'),
+    passwordStrength: qs('#password-strength'),
+    adminUsername: qs('#admin-username'),
+    sessionExpires: qs('#session-expires'),
   };
 
   const state = {
@@ -431,6 +438,65 @@
       }
     }
   });
+  
+  // Password strength indicator
+  els.newPassword && els.newPassword.addEventListener('input', updatePasswordStrength);
+  
+  // Change password handler
+  els.btnChangePassword && els.btnChangePassword.addEventListener('click', async () => {
+    const currentPassword = els.currentPassword?.value || '';
+    const newPassword = els.newPassword?.value || '';
+    const confirmPassword = els.confirmPassword?.value || '';
+    
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      showToast('Compila tutti i campi');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      showToast('Le nuove password non coincidono');
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      showToast('La password deve essere di almeno 8 caratteri');
+      return;
+    }
+    
+    try {
+      els.btnChangePassword.disabled = true;
+      els.btnChangePassword.textContent = 'Cambio in corso...';
+      
+      const response = await fetch('change-password.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showToast('Password cambiata con successo!');
+        // Clear form
+        els.currentPassword.value = '';
+        els.newPassword.value = '';
+        els.confirmPassword.value = '';
+        updatePasswordStrength();
+      } else {
+        showToast(data.error || 'Errore nel cambio password');
+      }
+    } catch (error) {
+      showToast('Errore di connessione');
+    } finally {
+      els.btnChangePassword.disabled = false;
+      els.btnChangePassword.textContent = 'Cambia Password';
+    }
+  });
   // rimosso pulsante clipboard globale
   // Copy endpoints on click with visual feedback
   els.endpointUrl && els.endpointUrl.addEventListener('click', async () => {
@@ -494,6 +560,35 @@
     }
   });
 
+  // Password strength checker
+  function checkPasswordStrength(password) {
+    if (!password) return null;
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+    
+    if (strength <= 2) return 'weak';
+    if (strength <= 3) return 'medium';
+    return 'strong';
+  }
+  
+  // Update password strength indicator
+  function updatePasswordStrength() {
+    const password = els.newPassword?.value || '';
+    const strength = checkPasswordStrength(password);
+    
+    if (els.passwordStrength) {
+      els.passwordStrength.className = 'password-strength';
+      if (strength) {
+        els.passwordStrength.classList.add(strength);
+      }
+    }
+  }
+  
   // Check authentication first
   async function checkAuth() {
     try {
@@ -503,11 +598,40 @@
         window.location.href = 'login.html';
         return false;
       }
+      // Update username display
+      if (els.adminUsername) {
+        els.adminUsername.textContent = data.username || 'admin';
+      }
+      // Update session timer
+      updateSessionTimer();
       return true;
     } catch (error) {
       window.location.href = 'login.html';
       return false;
     }
+  }
+  
+  // Update session expiry timer
+  function updateSessionTimer() {
+    if (!els.sessionExpires) return;
+    
+    const updateTimer = () => {
+      const lastActivity = Date.now();
+      const expiresIn = 1800000 - (Date.now() - lastActivity); // 30 minutes in ms
+      
+      if (expiresIn <= 0) {
+        els.sessionExpires.textContent = 'Sessione scaduta';
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      const minutes = Math.floor(expiresIn / 60000);
+      const seconds = Math.floor((expiresIn % 60000) / 1000);
+      els.sessionExpires.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
   }
   
   // init

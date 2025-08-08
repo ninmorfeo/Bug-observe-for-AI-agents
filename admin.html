@@ -144,6 +144,56 @@
       </div>
     </section>
 
+    <section class="panel">
+      <h2>🔑 Gestione Credenziali Admin</h2>
+      <div class="columns">
+        <div class="col">
+          <h3>Cambia Password</h3>
+          <div class="password-change-form">
+            <div class="field-row">
+              <label for="current-password">Password Attuale</label>
+              <input type="password" id="current-password" autocomplete="current-password" />
+            </div>
+            <div class="field-row">
+              <label for="new-password">Nuova Password</label>
+              <input type="password" id="new-password" autocomplete="new-password" />
+              <small class="field-help">Minimo 8 caratteri, consigliati 12+</small>
+            </div>
+            <div class="field-row">
+              <label for="confirm-password">Conferma Nuova Password</label>
+              <input type="password" id="confirm-password" autocomplete="new-password" />
+            </div>
+            <div class="password-strength" id="password-strength"></div>
+            <button id="btn-change-password" class="primary">Cambia Password</button>
+          </div>
+        </div>
+        <div class="col">
+          <h3>Informazioni Account</h3>
+          <div class="account-info">
+            <div class="info-item">
+              <strong>Username:</strong> <span id="admin-username">admin</span>
+            </div>
+            <div class="info-item">
+              <strong>Ultimo accesso:</strong> <span id="last-login">-</span>
+            </div>
+            <div class="info-item">
+              <strong>Sessione scade tra:</strong> <span id="session-expires">-</span>
+            </div>
+            <div class="hint" style="margin-top: 20px;">
+              <p><strong>Suggerimenti password sicura:</strong></p>
+              <ul style="margin: 8px 0; padding-left: 20px;">
+                <li>Usa almeno 12 caratteri</li>
+                <li>Includi maiuscole e minuscole</li>
+                <li>Aggiungi numeri e simboli</li>
+                <li>Evita informazioni personali</li>
+                <li>Non riutilizzare password</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel security-warning">
       <h2>⚠️ Sicurezza</h2>
       <div class="warning-content">
