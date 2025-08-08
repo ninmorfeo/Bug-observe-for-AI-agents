@@ -15,7 +15,7 @@ if (isset($_GET['base'])) {
 
 function isAllowed(string $file): bool {
   $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-  return in_array($ext, ['log','txt','err','php'], true);
+  return in_array($ext, ['log','txt','err'], true);
 }
 
 function scanDirTree(string $dir, int $depth = 0, int $maxDepth = 4): array {
