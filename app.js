@@ -137,6 +137,28 @@
       syncStateFromDOM();
     });
     
+    // Handle drop from file explorer
+    input.addEventListener('dragover', ev => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'copy';
+      input.classList.add('drop-target');
+    });
+    
+    input.addEventListener('dragleave', () => {
+      input.classList.remove('drop-target');
+    });
+    
+    input.addEventListener('drop', ev => {
+      ev.preventDefault();
+      input.classList.remove('drop-target');
+      const p = ev.dataTransfer.getData('text/plain');
+      if (p && !existsPath(p)) {
+        input.value = p;
+        syncStateFromDOM();
+      }
+    });
+    
+    // Handle row reordering
     li.addEventListener('dragover', ev => {
       ev.preventDefault();
       ev.dataTransfer.dropEffect = 'move';

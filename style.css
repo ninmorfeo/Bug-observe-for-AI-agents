@@ -108,6 +108,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .danger-box{background:var(--danger-box-bg, #1f0f12);border:1px solid var(--danger-box-border, #7f1d1d);color:var(--danger-box-text, #fecaca);padding:12px;border-radius:8px}
 
 .drop-target{outline:2px dashed var(--accent)}
+.log-row .path.drop-target{background:var(--surface-2);box-shadow:0 0 0 2px var(--accent)}
 
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:10px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .5s ease}
 .toast.show{opacity:1}
