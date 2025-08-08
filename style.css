@@ -57,10 +57,12 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .status code{display:block;color:var(--text)}
 .status code.copyable{cursor:pointer;position:relative;padding:.25rem .5rem;border-radius:6px;border:1px dashed var(--border);background:var(--surface-2)}
 .status code.copyable:hover{box-shadow:0 0 0 2px rgba(14,165,233,.25)}
-.status code.copyable.copied{outline:2px solid var(--accent);}
+.status code.copyable.copied{outline:2px solid #10b981;background:rgba(16, 185, 129, 0.1);}
 /* Tooltip for copyable */
 .status code.copyable::after{content:attr(data-tip);position:absolute;top:-32px;right:0;white-space:nowrap;background:#000;color:#fff;font-size:12px;padding:4px 6px;border-radius:4px;opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity .15s ease, transform .15s ease}
 .status code.copyable:hover::after{opacity:1;transform:translateY(0)}
+/* Green tooltip when copied */
+.status code.copyable.copied::after{background:#10b981;opacity:1;transform:translateY(0);font-weight:600}
 
 .columns .col{min-height:260px}
 .tree{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:8px;max-height:420px;overflow:auto}

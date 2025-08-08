@@ -507,12 +507,20 @@
   els.endpointUrl && els.endpointUrl.addEventListener('click', async () => {
     await copyToClipboard(els.endpointUrl.textContent.trim());
     els.endpointUrl.classList.add('copied');
-    setTimeout(() => els.endpointUrl.classList.remove('copied'), 600);
+    els.endpointUrl.setAttribute('data-tip', 'Copiato!');
+    setTimeout(() => {
+      els.endpointUrl.classList.remove('copied');
+      els.endpointUrl.setAttribute('data-tip', 'Clicca per copiare');
+    }, 2000);
   });
   els.endpointDirect && els.endpointDirect.addEventListener('click', async () => {
     await copyToClipboard(els.endpointDirect.textContent.trim());
     els.endpointDirect.classList.add('copied');
-    setTimeout(() => els.endpointDirect.classList.remove('copied'), 600);
+    els.endpointDirect.setAttribute('data-tip', 'Copiato!');
+    setTimeout(() => {
+      els.endpointDirect.classList.remove('copied');
+      els.endpointDirect.setAttribute('data-tip', 'Clicca per copiare');
+    }, 2000);
   });
   els.btnReset.addEventListener('click', async () => {
     if (!confirm('⚠️ ATTENZIONE: Questo resetterà TUTTO inclusa la password admin!\n\nLa password tornerà a: changeme123\n\nVuoi continuare?')) {
