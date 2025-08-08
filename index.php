@@ -63,6 +63,7 @@ foreach ($config['files'] as $entry) {
   $fromDate = trim((string)($entry['fromDate'] ?? ''));
   $fromTime = trim((string)($entry['fromTime'] ?? ''));
   $forceDate = !empty($entry['forceDate']);
+  $charLimit = (int)($entry['charLimit'] ?? 0);
   
   // Skip completely if hidden
   if ($hide) continue;
@@ -106,6 +107,17 @@ foreach ($config['files'] as $entry) {
       $content = implode("\n", $filtered);
     }
   }
+  
+  // Apply character limit if specified
+  if ($charLimit > 0 && strlen((string)$content) > $charLimit) {
+    $content = substr((string)$content, -$charLimit);
+    // Try to find a line break to avoid cutting in the middle of a line
+    $nlPos = strpos($content, "\n");
+    if ($nlPos !== false && $nlPos < 100) {
+      $content = substr($content, $nlPos + 1);
+    }
+  }
+  
   $results[] = [
     'path' => $path,
     'ok' => true,

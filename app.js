@@ -109,16 +109,17 @@
 
   function renderRows() {
     els.logList.innerHTML = '';
-    state.config.files.forEach(f => addRow(f.path, !!f.deleteAfterRead, !!f.hide));
-    if (state.config.files.length === 0) addRow('', false, false);
+    state.config.files.forEach(f => addRow(f.path, !!f.deleteAfterRead, !!f.hide, f.charLimit || 0));
+    if (state.config.files.length === 0) addRow('', false, false, 0);
   }
 
-  function addRow(path = '', del = false, hide = false) {
+  function addRow(path = '', del = false, hide = false, charLimit = 0) {
     const tpl = qs('#row-template');
     const li = tpl.content.firstElementChild.cloneNode(true);
     const input = qs('.path', li);
     const chk = qs('.delete-after', li);
     const hideChk = qs('.hide-log', li);
+    const charLimitInput = qs('.char-limit', li);
     const btn = qs('.remove', li);
     const btnExp = qs('.expand', li);
     const panel = qs('.details', li);
@@ -126,6 +127,7 @@
     input.value = path;
     chk.checked = del;
     hideChk.checked = hide;
+    charLimitInput.value = charLimit || 0;
     
     // Apply hidden styling if needed
     if (hide) {
@@ -192,6 +194,7 @@
     });
 
     chk.addEventListener('change', syncStateFromDOM);
+    charLimitInput.addEventListener('change', syncStateFromDOM);
     
     // Handle hide checkbox styling
     hideChk.addEventListener('change', () => {
@@ -226,7 +229,8 @@
       fromDate: qs('.from-date', row)?.value || '',
       fromTime: qs('.from-time', row)?.value || '',
       forceDate: !!qs('.force-date', row)?.checked,
-      hide: !!qs('.hide-log', row)?.checked
+      hide: !!qs('.hide-log', row)?.checked,
+      charLimit: parseInt(qs('.char-limit', row)?.value || '0', 10)
     })).filter(f => f.path);
     state.config.files = dedupe(files);
     state.config.apiEnabled = els.apiEnabled.checked;
@@ -394,7 +398,7 @@
     showToast('Nuova chiave generata');
   });
   els.apiEnabled.addEventListener('change', syncStateFromDOM);
-  els.btnAddRow.addEventListener('click', () => { addRow('', false, false); showToast('Riga aggiunta'); });
+  els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast('Riga aggiunta'); });
   els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
   els.btnFetchTree.addEventListener('click', fetchTree);
   els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast('Tutti espansi'); });

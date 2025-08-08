@@ -102,9 +102,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .log-row .details .field{display:flex;flex-direction:column;gap:6px}
 .log-row .details .field > span{font-size:12px;color:var(--muted)}
 .log-row .details input[type=date],
-.log-row .details input[type=time]{width:100%;padding:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);border-radius:8px;color-scheme:dark}
+.log-row .details input[type=time],
+.log-row .details input[type=number]{width:100%;padding:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);border-radius:8px;color-scheme:dark}
 [data-theme="light"] .log-row .details input[type=date],
-[data-theme="light"] .log-row .details input[type=time]{color-scheme:light}
+[data-theme="light"] .log-row .details input[type=time],
+[data-theme="light"] .log-row .details input[type=number]{color-scheme:light}
 .log-row .details .chk{align-items:center}
 .log-row .details .chk{display:flex}
 .log-row .details .chk input{margin-right:8px}
