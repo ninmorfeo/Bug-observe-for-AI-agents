@@ -22,6 +22,7 @@
     out: qs('#test-output'),
     btnReset: qs('#btn-reset'),
     unsavedChanges: qs('#unsaved-changes'),
+    btnDownloadHtaccess: qs('#btn-download-htaccess'),
   };
 
   const state = {
@@ -444,6 +445,26 @@
     const trimmed = lines.length > max ? lines.slice(-max).join('\n') : text;
     els.out.textContent = trimmed;
     showToast('Test eseguito');
+  });
+  
+  // Download htaccess example
+  els.btnDownloadHtaccess && els.btnDownloadHtaccess.addEventListener('click', async () => {
+    try {
+      const response = await fetch('htaccess-example.txt');
+      const text = await response.text();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'htaccess-example.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showToast('.htaccess di esempio scaricato');
+    } catch (err) {
+      showToast('Errore nel download del file');
+    }
   });
 
   // init

@@ -120,6 +120,25 @@
         </div>
       </div>
     </section>
+
+    <section class="panel security-warning">
+      <h2>⚠️ Sicurezza</h2>
+      <div class="warning-content">
+        <p><strong>ATTENZIONE:</strong> Ricordati di proteggere la tua cartella in ambiente di produzione inserendo un .htaccess corretto!</p>
+        <p>Questo impedirà accessi non autorizzati ai file di configurazione e ai log.</p>
+        <button id="btn-download-htaccess" class="primary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 6px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Scarica .htaccess di esempio
+        </button>
+        <small style="display: block; margin-top: 10px; color: var(--muted);">
+          Dopo il download, rinomina il file in .htaccess e posizionalo nella cartella bugobserve-ai-agents
+        </small>
+      </div>
+    </section>
   </main>
 
   <div id="toast" class="toast" aria-live="polite"></div>

@@ -115,6 +115,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px;max-height:280px;overflow:auto}
 .output{white-space:pre-wrap;word-break:break-word}
 .danger-box{background:var(--danger-box-bg, #1f0f12);border:1px solid var(--danger-box-border, #7f1d1d);color:var(--danger-box-text, #fecaca);padding:12px;border-radius:8px}
+.security-warning{background:linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(239, 68, 68, 0.1));border:2px solid var(--danger)}
+.security-warning h2{color:var(--danger);margin-bottom:12px}
+.security-warning .warning-content{background:var(--surface);padding:16px;border-radius:6px;border:1px solid var(--border)}
+.security-warning p{margin:0 0 12px;line-height:1.6}
+.security-warning button svg{display:inline-block;vertical-align:middle}
 
 .drop-target{outline:2px dashed var(--accent)}
 .log-row .path.drop-target{background:var(--surface-2);box-shadow:0 0 0 2px var(--accent)}

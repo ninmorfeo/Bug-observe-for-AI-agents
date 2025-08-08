@@ -1,0 +1,60 @@
+# BugObserve for AI Agents - Security Configuration
+# Rename this file to .htaccess and place it in your bugobserve-ai-agents folder
+
+# Deny access to all files by default
+Order Deny,Allow
+Deny from all
+
+# Allow access only to specific entry points
+<Files "admin.html">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "index.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "folders.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "load-config.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "save-config.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Allow access to CSS and JS files
+<FilesMatch "\.(css|js)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Protect sensitive data folder
+<FilesMatch "config\.json">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Additional security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Optional: Restrict access by IP (uncomment and modify as needed)
+# Order Deny,Allow
+# Deny from all
+# Allow from 192.168.1.0/24
+# Allow from YOUR.IP.ADDRESS.HERE
