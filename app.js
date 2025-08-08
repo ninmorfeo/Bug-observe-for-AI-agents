@@ -515,6 +515,10 @@
     setTimeout(() => els.endpointDirect.classList.remove('copied'), 600);
   });
   els.btnReset.addEventListener('click', async () => {
+    if (!confirm('⚠️ ATTENZIONE: Questo resetterà TUTTO inclusa la password admin!\n\nLa password tornerà a: changeme123\n\nVuoi continuare?')) {
+      return;
+    }
+    
     // Reset all values to defaults
     els.apiEnabled.checked = false;
     els.apiKey.value = '';
@@ -531,8 +535,29 @@
     };
     renderRows();
     buildEndpointPreview();
-    await saveConfig();
-    showToast('Reset completato');
+    
+    try {
+      // Save config
+      await saveConfig();
+      
+      // Reset admin password via new endpoint
+      const resetResponse = await fetch('reset-admin.php', { 
+        method: 'POST' 
+      });
+      
+      if (resetResponse.ok) {
+        showToast('Reset completato! Reindirizzamento al login...');
+        // Logout and redirect after reset
+        setTimeout(async () => {
+          await fetch('auth.php', { method: 'DELETE' });
+          window.location.href = 'login.html';
+        }, 2000);
+      } else {
+        showToast('Reset configurazione completato, ma errore nel reset password admin');
+      }
+    } catch (error) {
+      showToast('Errore durante il reset');
+    }
   });
   els.btnTest.addEventListener('click', async () => {
     syncStateFromDOM();

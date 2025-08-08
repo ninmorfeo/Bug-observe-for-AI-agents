@@ -5,6 +5,16 @@
 ![Tested up to PHP](https://img.shields.io/badge/Tested%20up%20to%20PHP-8.2-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-red.svg)
 
+## 🔐 Default Login Credentials
+
+```
+URL: http://your-domain/bugobserve-ai-agents/admin.html
+Username: admin
+Password: changeme123
+```
+
+⚠️ **IMPORTANT**: Change the default password immediately after first login!
+
 **Offrimi un caffè ☕**  
 <a href="https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development">
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
@@ -110,7 +120,7 @@ http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 
 ### Bulk Operations
 - **Expand/Collapse All**: Quick tree navigation
-- **Reset**: Return all settings to defaults
+- **Reset Completo**: Returns ALL settings to defaults (including admin password!)
 - **Test Endpoint**: Preview API output directly
 
 ## 🔒 Security Configuration
@@ -125,11 +135,14 @@ http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 - **IP Block Duration**: 60-86400 seconds (default: 300)
 - **Session Timeout**: 5-1440 minutes (default: 30)
 
-### Password Reset
+### Password Reset Options
+
+1. **From Admin Panel**: Use the password change form in "Sicurezza e Account" section
+2. **From Command Line**: 
 ```bash
-# From command line
 php set-admin-password.php YourNewSecurePassword
 ```
+3. **Factory Reset**: Click "Reset Completo" button (returns password to `changeme123`)
 
 ### Protected Endpoints
 - `admin.html` - Requires authentication
