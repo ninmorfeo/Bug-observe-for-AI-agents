@@ -29,6 +29,18 @@ if (!is_array($cfg)) {
 
 // ensure shape
 $cfg = array_merge($defaults, $cfg);
+
+// If we have a hash but no plain key, show a masked version
+if (!empty($cfg['apiKeyHash']) && empty($cfg['apiKey'])) {
+  // Get the last generated key from session if available
+  if (!empty($_SESSION['last_api_key'])) {
+    $cfg['apiKey'] = $_SESSION['last_api_key'];
+  } else {
+    // Show masked placeholder
+    $cfg['apiKey'] = '••••••••• (chiave salvata ma nascosta per sicurezza)';
+  }
+}
+
 echo json_encode($cfg, JSON_UNESCAPED_SLASHES);
 
 

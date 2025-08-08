@@ -148,6 +148,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .password-change-form label{font-weight:500;font-size:13px;color:var(--text)}
 .password-change-form input[type=password]{padding:10px 12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);border-radius:8px;font-size:14px;transition:all .2s ease}
 .password-change-form input[type=password]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.25)}
+.password-change-form input[type=password].error{border-color:var(--danger);background:rgba(239,68,68,.05)}
+.password-change-form input[type=password].error:focus{border-color:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.25)}
+.field-error{color:var(--danger);font-size:12px;margin-top:4px;animation:slideDown 0.2s ease}
 .password-strength{height:6px;border-radius:3px;background:var(--border);margin:8px 0;transition:all .3s ease}
 .password-strength.weak{background:linear-gradient(90deg,var(--danger) 33%,var(--border) 33%)}
 .password-strength.medium{background:linear-gradient(90deg,#fbbf24 66%,var(--border) 66%)}

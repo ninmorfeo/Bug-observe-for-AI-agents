@@ -125,7 +125,13 @@
             <div class="field-row">
               <label for="new-password">Nuova Password</label>
               <input type="password" id="new-password" autocomplete="new-password" />
-              <small class="field-help">Minimo 8 caratteri, consigliati 12+</small>
+              <small class="field-help">Requisiti: min 8 caratteri, maiuscole, minuscole e numeri</small>
+              <div id="password-requirements" style="margin-top:8px;font-size:12px;display:none">
+                <div class="req-item" data-req="length">❌ Almeno 8 caratteri</div>
+                <div class="req-item" data-req="uppercase">❌ Una lettera maiuscola</div>
+                <div class="req-item" data-req="lowercase">❌ Una lettera minuscola</div>
+                <div class="req-item" data-req="number">❌ Un numero</div>
+              </div>
             </div>
             <div class="field-row">
               <label for="confirm-password">Conferma Nuova Password</label>

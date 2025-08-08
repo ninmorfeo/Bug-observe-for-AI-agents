@@ -94,6 +94,16 @@
     state.config = Object.assign(state.config, data);
     els.apiEnabled.checked = !!state.config.apiEnabled;
     els.apiKey.value = state.config.apiKey || '';
+    
+    // If API key is masked, add a tooltip
+    if (els.apiKey.value.includes('•••') || els.apiKey.value.includes('nascosta')) {
+      els.apiKey.title = 'La chiave API è salvata ma nascosta per sicurezza. Genera una nuova chiave se necessario.';
+      els.apiKey.style.fontStyle = 'italic';
+    } else {
+      els.apiKey.title = '';
+      els.apiKey.style.fontStyle = 'normal';
+    }
+    
     els.maxAttempts.value = state.config.maxAttempts || 10;
     els.blockDuration.value = state.config.blockDuration || 300;
     els.sessionTimeout.value = state.config.sessionTimeout || 30;
@@ -263,6 +273,27 @@
       state.hasUnsavedChanges = true;
       els.unsavedChanges.style.display = 'flex';
     }
+  }
+
+  function showSessionExpiredWarning() {
+    // Create warning banner
+    const warningBanner = document.createElement('div');
+    warningBanner.className = 'warning-banner session-expired';
+    warningBanner.innerHTML = `
+      <span>⚠️ La sessione admin è scaduta. Sei stato riconnesso. <strong>Nota: La chiave API rimane valida e non necessita rigenerazione.</strong></span>
+      <button class="close-warning" style="background:transparent;border:none;color:#78350f;cursor:pointer;font-size:20px;padding:0;margin-left:16px" onclick="this.parentElement.remove()">✕</button>
+    `;
+    
+    // Insert at the beginning of container
+    const container = document.querySelector('.container');
+    container.insertBefore(warningBanner, container.firstChild);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (warningBanner.parentElement) {
+        warningBanner.remove();
+      }
+    }, 10000);
   }
 
   function dedupe(arr) {
@@ -444,28 +475,178 @@
     }
   });
   
+  // Password validation functions
+  function validatePasswordFields() {
+    const currentPassword = els.currentPassword?.value || '';
+    const newPassword = els.newPassword?.value || '';
+    const confirmPassword = els.confirmPassword?.value || '';
+    let isValid = true;
+    
+    // Reset error states
+    els.currentPassword?.classList.remove('error');
+    els.newPassword?.classList.remove('error');
+    els.confirmPassword?.classList.remove('error');
+    
+    // Current password validation
+    if (currentPassword && currentPassword.length < 3) {
+      els.currentPassword.classList.add('error');
+      showFieldError(els.currentPassword, 'Password troppo corta');
+      isValid = false;
+    } else {
+      clearFieldError(els.currentPassword);
+    }
+    
+    // New password validation
+    if (newPassword) {
+      if (newPassword.length < 8) {
+        els.newPassword.classList.add('error');
+        showFieldError(els.newPassword, 'Minimo 8 caratteri');
+        isValid = false;
+      } else if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+        els.newPassword.classList.add('error');
+        showFieldError(els.newPassword, 'Deve contenere maiuscole, minuscole e numeri');
+        isValid = false;
+      } else {
+        clearFieldError(els.newPassword);
+      }
+    }
+    
+    // Confirm password validation
+    if (confirmPassword && newPassword) {
+      if (confirmPassword !== newPassword) {
+        els.confirmPassword.classList.add('error');
+        showFieldError(els.confirmPassword, 'Le password non coincidono');
+        isValid = false;
+      } else {
+        clearFieldError(els.confirmPassword);
+      }
+    }
+    
+    // Enable/disable button based on validation
+    if (els.btnChangePassword) {
+      els.btnChangePassword.disabled = !isValid || !currentPassword || !newPassword || !confirmPassword;
+    }
+    
+    return isValid;
+  }
+  
+  function showFieldError(field, message) {
+    // Remove existing error
+    const existingError = field.parentElement.querySelector('.field-error');
+    if (existingError) existingError.remove();
+    
+    // Add new error message
+    const errorEl = document.createElement('div');
+    errorEl.className = 'field-error';
+    errorEl.style.cssText = 'color:#ef4444;font-size:12px;margin-top:4px';
+    errorEl.textContent = message;
+    field.parentElement.appendChild(errorEl);
+  }
+  
+  function clearFieldError(field) {
+    const error = field.parentElement.querySelector('.field-error');
+    if (error) error.remove();
+    field.classList.remove('error');
+  }
+  
+  function clearAllFieldErrors() {
+    document.querySelectorAll('.field-error').forEach(err => err.remove());
+    document.querySelectorAll('input.error').forEach(inp => inp.classList.remove('error'));
+  }
+  
+  function showFormSuccess(message) {
+    const form = document.querySelector('.password-change-form');
+    if (!form) return;
+    
+    // Remove existing messages
+    const existing = form.querySelector('.form-success');
+    if (existing) existing.remove();
+    
+    const successEl = document.createElement('div');
+    successEl.className = 'form-success';
+    successEl.style.cssText = 'color:#10b981;background:rgba(16,185,129,0.1);padding:12px;border-radius:6px;margin-top:12px;border:1px solid rgba(16,185,129,0.3)';
+    successEl.textContent = '✅ ' + message;
+    form.appendChild(successEl);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => successEl.remove(), 5000);
+  }
+  
+  function showFormError(message) {
+    const btn = els.btnChangePassword;
+    if (!btn) return;
+    
+    // Remove existing error
+    const existing = btn.parentElement.querySelector('.form-error');
+    if (existing) existing.remove();
+    
+    const errorEl = document.createElement('div');
+    errorEl.className = 'form-error';
+    errorEl.style.cssText = 'color:#ef4444;margin-top:8px;font-size:13px';
+    errorEl.textContent = '❌ ' + message;
+    btn.parentElement.appendChild(errorEl);
+  }
+  
+  // Update password requirements display
+  function updatePasswordRequirements(password) {
+    const reqsEl = document.getElementById('password-requirements');
+    if (!reqsEl) return;
+    
+    // Show requirements when typing
+    reqsEl.style.display = password ? 'block' : 'none';
+    
+    // Check each requirement
+    const requirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password)
+    };
+    
+    // Update visual indicators
+    Object.keys(requirements).forEach(req => {
+      const item = reqsEl.querySelector(`[data-req="${req}"]`);
+      if (item) {
+        const text = item.textContent.replace(/^[✅❌] /, '');
+        item.textContent = (requirements[req] ? '✅ ' : '❌ ') + text;
+        item.style.color = requirements[req] ? '#10b981' : '#ef4444';
+      }
+    });
+  }
+  
   // Password strength indicator
-  els.newPassword && els.newPassword.addEventListener('input', updatePasswordStrength);
+  els.newPassword && els.newPassword.addEventListener('input', () => {
+    const password = els.newPassword.value;
+    updatePasswordStrength();
+    updatePasswordRequirements(password);
+    validatePasswordFields();
+  });
+  
+  els.currentPassword && els.currentPassword.addEventListener('input', validatePasswordFields);
+  els.confirmPassword && els.confirmPassword.addEventListener('input', validatePasswordFields);
+  
+  // Prevent Enter key from submitting
+  [els.currentPassword, els.newPassword, els.confirmPassword].forEach(field => {
+    field && field.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // Trigger password change if all fields are valid
+        if (!els.btnChangePassword.disabled) {
+          els.btnChangePassword.click();
+        }
+      }
+    });
+  });
   
   // Change password handler
-  els.btnChangePassword && els.btnChangePassword.addEventListener('click', async () => {
+  els.btnChangePassword && els.btnChangePassword.addEventListener('click', async (e) => {
+    e.preventDefault(); // Prevent form submission
     const currentPassword = els.currentPassword?.value || '';
     const newPassword = els.newPassword?.value || '';
     const confirmPassword = els.confirmPassword?.value || '';
     
-    // Validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      showToast('Compila tutti i campi');
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-      showToast('Le nuove password non coincidono');
-      return;
-    }
-    
-    if (newPassword.length < 8) {
-      showToast('La password deve essere di almeno 8 caratteri');
+    // Final validation
+    if (!validatePasswordFields()) {
       return;
     }
     
@@ -486,17 +667,31 @@
       const data = await response.json();
       
       if (data.success) {
-        showToast('Password cambiata con successo!');
+        // Show success message in form
+        clearAllFieldErrors();
+        showFormSuccess('Password cambiata con successo!');
+        
         // Clear form
         els.currentPassword.value = '';
         els.newPassword.value = '';
         els.confirmPassword.value = '';
         updatePasswordStrength();
+        updatePasswordRequirements('');
       } else {
-        showToast(data.error || 'Errore nel cambio password');
+        // Show error under appropriate field
+        if (data.error.includes('attuale') || data.error.includes('corretta')) {
+          els.currentPassword.classList.add('error');
+          showFieldError(els.currentPassword, data.error);
+        } else if (data.error.includes('coincidono')) {
+          els.confirmPassword.classList.add('error');
+          showFieldError(els.confirmPassword, data.error);
+        } else {
+          // Generic error - show under the button
+          showFormError(data.error || 'Errore nel cambio password');
+        }
       }
     } catch (error) {
-      showToast('Errore di connessione');
+      showFormError('Errore di connessione al server');
     } finally {
       els.btnChangePassword.disabled = false;
       els.btnChangePassword.textContent = 'Cambia Password';
@@ -635,14 +830,31 @@
       const res = await fetch('auth.php');
       const data = await res.json();
       if (!data.authenticated) {
+        // Mark session as expired for login page
+        sessionStorage.setItem('session_expired', 'true');
         window.location.href = 'login.html';
         return false;
       }
+      
+      // Check if session was expired (came from login after timeout)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('session_expired') === 'true') {
+        showSessionExpiredWarning();
+        // Remove the parameter from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
       // Update username display
       if (els.adminUsername) {
         els.adminUsername.textContent = data.username || 'admin';
       }
-      // Update session timer
+      
+      // Store session timeout from server
+      if (data.sessionTimeout) {
+        state.config.sessionTimeout = data.sessionTimeout;
+      }
+      
+      // Update session timer after getting the timeout value
       updateSessionTimer();
       return true;
     } catch (error) {
@@ -688,6 +900,11 @@
       applyTheme(localStorage.getItem('vsdbg_theme') || 'dark');
       loadConfig();
       fetchTree();
+      
+      // Initialize password change button state
+      if (els.btnChangePassword) {
+        els.btnChangePassword.disabled = true;
+      }
     }
   });
 })();

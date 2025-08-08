@@ -179,7 +179,14 @@
         const data = await response.json();
         
         if (data.success) {
-          window.location.href = 'admin.html';
+          // Check if we came here from session expiry
+          const fromSessionExpiry = sessionStorage.getItem('session_expired');
+          if (fromSessionExpiry === 'true') {
+            sessionStorage.removeItem('session_expired');
+            window.location.href = 'admin.html?session_expired=true';
+          } else {
+            window.location.href = 'admin.html';
+          }
         } else {
           errorMsg.textContent = data.error || 'Credenziali non valide';
           errorMsg.classList.add('show');
