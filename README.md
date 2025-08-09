@@ -15,7 +15,7 @@ Password: changeme123
 
 ⚠️ **IMPORTANT**: Change the default password immediately after first login!
 
-**Offrimi un caffè ☕**  
+**offer me a coffee ☕**  
 <a href="https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development">
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
 </a>
