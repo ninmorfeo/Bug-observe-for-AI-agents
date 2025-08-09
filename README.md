@@ -23,6 +23,7 @@ Password: changeme123
 ## Version 2.0 - Standalone Edition
 
 A powerful debugging and log monitoring tool designed specifically for AI agents and automated development workflows. This standalone version provides a clean, intuitive interface for managing and monitoring multiple log files in real-time.
+Simply provide the exposure link to the Ai Agent and allow it to read any logs.
 
 ## 🎯 Purpose
 
