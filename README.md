@@ -1,6 +1,6 @@
 # BugObserve for AI Agents 🤖
 
-![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.0.1-blue.svg)
 ![Requires PHP](https://img.shields.io/badge/Requires%20PHP-7.0%2B-purple.svg)
 ![Tested up to PHP](https://img.shields.io/badge/Tested%20up%20to%20PHP-8.2-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-red.svg)
@@ -15,14 +15,32 @@ Password: changeme123
 
 ⚠️ **IMPORTANT**: Change the default password immediately after first login!
 
+## 📸 Screenshots
+
+### Admin Interface
+![Admin Interface](./docs/images/admin-interface.png)
+*Main admin panel with log file management and API configuration*
+
+### Security Settings
+![Security Settings](./docs/images/settings-panel.png)
+*Comprehensive security configuration panel*
+
+### File Explorer
+![File Explorer](./docs/images/file-explorer.png)
+*Interactive file tree with drag-and-drop functionality*
+
+### API Response Example
+![API Response](./docs/images/api-response.png)
+*Clean JSON output structure (v2.0.1+)*
+
 **Offrimi un caffè ☕**  
 <a href="https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development">
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
 </a>
 
-## Version 2.0 - Standalone Edition
+## Version 2.0.1 - Enhanced Edition
 
-A powerful debugging and log monitoring tool designed specifically for AI agents and automated development workflows. This standalone version provides a clean, intuitive interface for managing and monitoring multiple log files in real-time.
+A powerful debugging and log monitoring tool designed specifically for AI agents and automated development workflows. This latest version includes significant improvements to user experience, security, and functionality.
 
 ## 🎯 Purpose
 
@@ -69,6 +87,13 @@ BugObserve for AI Agents is designed to streamline the debugging process for AI-
 - Direct endpoint URLs for quick testing
 - Pretty-print JSON output option
 - Unified security settings for API and admin
+- Log file clearing functionality with admin authentication
+
+### 🧹 Log Management Tools
+- **Empty Log Files**: Clear individual log files with one click
+- **Session-based Authentication**: Admin operations use secure session auth
+- **Visual Feedback**: Success banners and toast notifications
+- **Safety Confirmations**: Prevent accidental data loss
 
 ### 🎨 Modern UI/UX
 - Dark/Light theme support
@@ -76,6 +101,8 @@ BugObserve for AI Agents is designed to streamline the debugging process for AI-
 - Smooth animations and transitions
 - Intuitive drag-and-drop row reordering
 - Visual feedback for all interactions
+- Improved notification system with banners and toasts
+- Clean API output with simplified JSON structure
 
 ## 🚀 Installation
 
@@ -86,9 +113,13 @@ git clone https://github.com/ninmorfeo/Bug-observe-for-AI-agents.git
 
 2. Place the folder in your web server directory
 
-3. Navigate to `admin.html` in your browser
+3. Navigate to `login.html` in your browser
 
-4. Configure your log files and API settings
+4. Login with default credentials (admin/changeme123)
+
+5. **IMMEDIATELY change the default password** for security
+
+6. Configure your log files and API settings in the admin panel
 
 ## 📝 Configuration
 
@@ -110,6 +141,8 @@ For formatted output:
 http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 ```
 
+⚠️ **Security Note**: The API endpoint returns simplified JSON structure (v2.0.1+) with only essential fields: `path`, `size`, `content_log`, and `truncated` (when applicable).
+
 ## 🔧 Advanced Options
 
 ### Per-File Settings
@@ -117,11 +150,13 @@ http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY&pretty=1
 - **Hide Log**: Exclude from aggregated output
 - **Force Date Filter**: Strictly enforce date filtering
 - **Delete After Read**: Automatically remove log after reading
+- **Character Limit**: Limit output to last N characters for large files
+- **Empty Log**: Clear log file contents with admin authentication
 
 ### Bulk Operations
 - **Expand/Collapse All**: Quick tree navigation
+- **Test Endpoint**: Preview API output directly in admin panel
 - **Reset Completo**: Returns ALL settings to defaults (including admin password!)
-- **Test Endpoint**: Preview API output directly
 
 ## 🔒 Security Configuration
 
@@ -144,14 +179,20 @@ php set-admin-password.php YourNewSecurePassword
 ```
 3. **Factory Reset**: Click "Reset Completo" button (returns password to `changeme123`)
 
-### Protected Endpoints
-- `admin.html` - Requires authentication
-- `save-config.php` - Requires valid session
-- `load-config.php` - Requires valid session
-- `folders.php` - Requires valid session
+### Protected Endpoints (Require Admin Session)
+- `admin.html` - Admin interface
+- `save-config.php` - Configuration saving
+- `load-config.php` - Configuration loading
+- `folders.php` - File explorer
+- `empty-log.php` - Log file clearing
+- `test-endpoint.php` - API testing
+- `change-password.php` - Password management
+- `reset-admin.php` - Admin reset
 
-### Public Endpoint
-- `index.php?api_key=YOUR_KEY` - API access (requires valid API key)
+### Public Endpoints
+- `index.php?api_key=YOUR_KEY` - Main API access (requires valid API key)
+- `login.html` - Login page
+- `auth.php` - Authentication handler
 
 ## 🛠️ Technical Details
 
@@ -159,28 +200,41 @@ php set-admin-password.php YourNewSecurePassword
 - PHP 7.0 or higher (PHP 8.x recommended)
 - Web server (Apache, Nginx, etc.)
 - Modern browser with JavaScript enabled
+- HTTPS recommended for production use
+- Write permissions for `data/` directory
 
 ### File Structure
 ```
 bugobserve-ai-agents/
-├── admin.html          # Admin interface
-├── login.html         # Login page
-├── app.js             # Core application logic
-├── style.css          # Styling and themes
-├── index.php          # API endpoint
-├── auth.php           # Authentication handler
-├── change-password.php # Password management
-├── folders.php        # File explorer backend
-├── load-config.php    # Configuration loader
-├── save-config.php    # Configuration saver
+├── admin.html              # Admin interface
+├── login.html              # Login page
+├── app.js                  # Core application logic
+├── style.css               # Styling and themes
+├── index.php               # Public API endpoint
+├── test-endpoint.php       # Admin test endpoint
+├── auth.php                # Authentication handler
+├── change-password.php     # Password management
+├── empty-log.php           # Log file clearing
+├── folders.php             # File explorer backend
+├── load-config.php         # Configuration loader
+├── save-config.php         # Configuration saver
+├── reset-admin.php         # Admin password reset
+├── set-admin-password.php  # CLI password tool
+├── csrf-token.php          # CSRF token generator
+├── htaccess-example.txt    # Apache security example
+├── package.json            # Node.js dependencies (optional)
+├── ADMIN_SETUP.md          # Admin setup guide
+├── docs/
+│   ├── README.md           # Documentation guidelines
+│   └── images/             # Screenshots and visual docs
 ├── includes/
 │   ├── session-check.php         # Session validation
-│   ├── rate-limiter.php         # Rate limiting
+│   ├── rate-limiter.php          # Rate limiting
 │   └── brute-force-protection.php # IP blocking
 └── data/
-    ├── config.json    # Main configuration
-    ├── admin.json     # Admin credentials
-    └── failed_attempts/ # Brute force tracking
+    ├── config.json           # Main configuration
+    ├── admin.json            # Admin credentials
+    └── failed_attempts/      # Brute force tracking
 ```
 
 ## 🤝 AI Agent Integration
@@ -198,15 +252,40 @@ This tool is optimized for use with AI coding assistants like:
 const response = await fetch('http://your-domain/bugobserve-ai-agents/index.php?api_key=YOUR_KEY');
 const logs = await response.json();
 
-// Process logs in your AI workflow
+// Process simplified log structure (v2.0.1+)
 logs.forEach(entry => {
-    console.log(`[${entry.timestamp}] ${entry.message}`);
+    console.log(`File: ${entry.path}`);
+    console.log(`Size: ${entry.size} bytes`);
+    if (entry.truncated) console.log('(Content was truncated)');
+    console.log(`Content:\n${entry.content_log}`);
 });
 ```
 
 ## 📈 Version History
 
-### v2.0 (Current)
+### v2.0.1 (Current)
+**✨ New Features:**
+- Empty log file functionality with admin authentication
+- Enhanced notification system with success banners
+- Simplified API output with clean JSON structure
+- Test endpoint with session-based authentication
+- Improved form styling for all input types
+
+**🐛 Bug Fixes:**
+- Fixed API key masking issues with test functionality
+- Resolved notification glitches during save operations
+- Corrected file path normalization for log operations
+- Fixed browser caching issues with configuration updates
+- Improved change detection for unsaved modifications
+
+**🔧 Improvements:**
+- Better error handling and user feedback
+- Enhanced security with session-based admin operations
+- Cleaner API responses without debug information
+- Improved CSS consistency across form elements
+- Better path handling for cross-platform compatibility
+
+### v2.0
 - Complete standalone rewrite
 - Modern UI with theme support
 - Enhanced drag-and-drop functionality
@@ -220,10 +299,19 @@ logs.forEach(entry => {
 
 ## 🔒 Security
 
-- API keys are stored locally in `config.json`
-- No external dependencies or tracking
-- Secure file access controls
-- Input sanitization and validation
+### Data Security
+- **API keys**: Stored as bcrypt hashes in `config.json`
+- **Admin credentials**: Encrypted in `admin.json`
+- **No external dependencies**: All data stays on your server
+- **Local storage only**: No tracking or external connections
+
+### Protection Features
+- **Brute force protection**: Configurable IP blocking
+- **Rate limiting**: Prevents API abuse
+- **Session management**: Secure admin authentication
+- **Path traversal prevention**: Secure file access validation
+- **Input sanitization**: All inputs validated and escaped
+- **CSRF protection**: Token-based form security (optional)
 
 ## 🐛 Bug Reports & Features
 

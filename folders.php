@@ -9,6 +9,23 @@ header('Content-Type: application/json; charset=utf-8');
 $allowedBase = realpath(dirname(__DIR__)); // default: project root
 $base = $allowedBase;
 
+// Function to normalize paths for cross-platform compatibility
+function normalizePathForOutput(string $path): string {
+  global $allowedBase;
+  
+  // Convert Windows path separators to forward slashes for consistency
+  $normalized = str_replace('\\', '/', $path);
+  $normalizedBase = str_replace('\\', '/', $allowedBase);
+  
+  // If path starts with the base, make it relative to web root
+  if (strpos($normalized, $normalizedBase) === 0) {
+    $relativePath = substr($normalized, strlen($normalizedBase));
+    return '/' . ltrim($relativePath, '/');
+  }
+  
+  return $normalized;
+}
+
 if (isset($_GET['base'])) {
   $requested = realpath($_GET['base']);
   // Only allow if the requested path is within the allowed base
@@ -40,7 +57,7 @@ function scanDirTree(string $dir, int $depth = 0, int $maxDepth = 4): array {
       $node['children'][] = [
         'type' => 'file',
         'name' => $item,
-        'path' => $abs
+        'path' => normalizePathForOutput($abs)
       ];
     }
   }

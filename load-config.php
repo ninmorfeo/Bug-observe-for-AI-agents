@@ -29,6 +29,11 @@ if (!is_array($cfg)) {
 
 // ensure shape
 $cfg = array_merge($defaults, $cfg);
+
+// Remove sensitive/internal data before sending to frontend
+unset($cfg['apiKeyHash']);
+unset($cfg['lastUpdated']);
+
 echo json_encode($cfg, JSON_UNESCAPED_SLASHES);
 
 

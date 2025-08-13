@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# API Endpoints
+RewriteRule ^api/empty-log$ empty-log.php [L]
+
+# Protect sensitive directories
+<Files "*.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.md">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect includes directory
+RewriteRule ^includes/ - [F,L]
+
+# Protect data directory (except for specific endpoints that need it)
+RewriteRule ^data/ - [F,L]

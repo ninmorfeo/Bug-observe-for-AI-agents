@@ -4,6 +4,9 @@ declare(strict_types=1);
 // Simple standalone endpoint that returns aggregated log contents based on config.json
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 // Rate limiting
 require_once __DIR__ . '/includes/rate-limiter.php';
@@ -23,7 +26,15 @@ $dataDir = $baseDir . DIRECTORY_SEPARATOR . 'data';
 @mkdir($dataDir, 0755, true);
 $configPath = $dataDir . DIRECTORY_SEPARATOR . 'config.json';
 
-// Load config
+// Clear any file system cache before reading config
+if (function_exists('clearstatcache')) {
+  clearstatcache(true, $configPath);
+}
+if (function_exists('opcache_invalidate')) {
+  opcache_invalidate($configPath);
+}
+
+// ALWAYS load fresh config from file, never cache
 $config = [
   'apiEnabled' => false,
   'apiKey' => '',
@@ -31,6 +42,8 @@ $config = [
   'blockDuration' => 300,
   'files' => []
 ];
+
+// Load configuration
 if (is_file($configPath)) {
   $json = file_get_contents($configPath);
   $cfg = json_decode($json, true);
@@ -102,9 +115,16 @@ function isAllowedExtension(string $path): bool {
 function normalizePath(string $path, string $root): string {
   // avoid traversal; resolve to realpath when possible
   $full = $path;
-  if (!preg_match('/^([a-zA-Z]:\\\\|\\\\\\\\|\/)?.*/', $full)) {
+  
+  // Handle relative paths that start with /
+  if (strpos($path, '/') === 0 && !preg_match('/^[a-zA-Z]:\\\\/', $path)) {
+    // This is a relative path from web root, convert to absolute
+    $webRoot = dirname(__DIR__);
+    $full = $webRoot . $path;
+  } elseif (!preg_match('/^([a-zA-Z]:\\\\|\\\\\\\\|\/)?.*/', $full)) {
     $full = $root . DIRECTORY_SEPARATOR . $path;
   }
+  
   $full = str_replace(['..', '\\'], ['', DIRECTORY_SEPARATOR], $full);
   return $full;
 }
@@ -125,22 +145,12 @@ foreach ($config['files'] as $entry) {
   if ($hide) continue;
   
   if ($path === '' || !isAllowedExtension($path)) {
-    $results[] = [
-      'path' => $path,
-      'ok' => false,
-      'error' => 'Invalid or forbidden file extension'
-    ];
-    continue;
+    continue; // Skip invalid files silently
   }
   $abs = normalizePath($path, DIRECTORY_SEPARATOR === '/' ? '/' : substr(__DIR__, 0, 2));
   // ensure file resides under server root or accessible path and exists
   if (!is_file($abs) || !is_readable($abs)) {
-    $results[] = [
-      'path' => $path,
-      'ok' => false,
-      'error' => 'File not found or unreadable'
-    ];
-    continue;
+    continue; // Skip unreadable files silently
   }
   $content = @file_get_contents($abs);
   // Se è impostata una data/ora, filtra le righe che hanno timestamp >= (data/ora)
@@ -164,9 +174,13 @@ foreach ($config['files'] as $entry) {
     }
   }
   
+  // Track if content was truncated
+  $truncated = false;
+  
   // Apply character limit if specified
   if ($charLimit > 0 && strlen((string)$content) > $charLimit) {
     $content = substr((string)$content, -$charLimit);
+    $truncated = true;
     // Try to find a line break to avoid cutting in the middle of a line
     $nlPos = strpos($content, "\n");
     if ($nlPos !== false && $nlPos < 100) {
@@ -174,23 +188,28 @@ foreach ($config['files'] as $entry) {
     }
   }
   
-  $results[] = [
+  $result = [
     'path' => $path,
-    'ok' => true,
     'size' => strlen((string)$content),
     'content_log' => $content
   ];
+  
+  // Only add truncated field if content was actually truncated
+  if ($truncated) {
+    $result['truncated'] = true;
+  }
+  
+  $results[] = $result;
   if ($deleteAfter) {
     @unlink($abs);
   }
 }
 
-$payload = ['timestamp' => time(), 'count' => count($results), 'items' => $results];
-
+// Return only the results array with clean output
 if (isset($_GET['pretty'])) {
-  echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+  echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 } else {
-  echo json_encode($payload);
+  echo json_encode($results, JSON_INVALID_UTF8_IGNORE);
 }
 
 

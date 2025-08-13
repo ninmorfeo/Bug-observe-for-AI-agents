@@ -61,12 +61,12 @@
   async function copyToClipboard(text) {
     try {
       await navigator.clipboard.writeText(text);
-      showToast('Copiato negli appunti');
+      showToast(t('toast.copied'));
     } catch (e) {
       // fallback
       const ta = document.createElement('textarea');
       ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-      showToast('Copiato');
+      showToast(t('toast.copied.short'));
     }
   }
 
@@ -75,7 +75,7 @@
     if (!t) return;
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 500);
+    setTimeout(() => t.classList.remove('show'), 2000);
   }
 
   // Theme handling
@@ -105,33 +105,62 @@
     const prevState = state.hasUnsavedChanges;
     state.hasUnsavedChanges = false;
     
-    renderRows();
+    renderRows(true); // Prevent sync during initial render
     buildEndpointPreview();
     
     // Restore state (should be false on initial load)
     state.hasUnsavedChanges = prevState;
   }
 
-  async function saveConfig() {
+  async function saveConfig(silent = false) {
     const payload = JSON.stringify(state.config);
     const res = await fetch('save-config.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: payload
     });
-    if (!res.ok) throw new Error('Salvataggio fallito');
+    
+    const result = await res.json();
+    
+    if (!res.ok || !result.ok) {
+      throw new Error(result.error || 'Salvataggio fallito');
+    }
     
     // Hide unsaved changes warning
     state.hasUnsavedChanges = false;
     els.unsavedChanges.style.display = 'none';
     
-    showToast('Configurazione salvata');
+    if (!silent) {
+      // Show success banner
+      const successBanner = document.getElementById('save-success');
+      if (successBanner) {
+        successBanner.style.display = 'flex';
+        // Hide it after 3 seconds
+        setTimeout(() => {
+          successBanner.style.display = 'none';
+        }, 3000);
+      }
+      
+      showToast(t('toast.saved'));
+    }
   }
 
-  function renderRows() {
+  function renderRows(preventSync = false) {
     els.logList.innerHTML = '';
+    
+    // Temporarily disable sync during render to prevent false change detection
+    const originalSync = window.syncStateFromDOM;
+    if (preventSync) {
+      window.syncStateFromDOM = () => {};
+    }
+    
     state.config.files.forEach(f => addRow(f.path, !!f.deleteAfterRead, !!f.hide, f.charLimit || 0));
     if (state.config.files.length === 0) addRow('', false, false, 0);
+    
+    // Restore original sync function
+    if (preventSync) {
+      window.syncStateFromDOM = originalSync;
+    }
   }
 
   function addRow(path = '', del = false, hide = false, charLimit = 0) {
@@ -141,11 +170,15 @@
     const chk = qs('.delete-after', li);
     const hideChk = qs('.hide-log', li);
     const charLimitInput = qs('.char-limit', li);
+    const btnEmpty = qs('.empty-log', li);
     const btn = qs('.remove', li);
     const btnExp = qs('.expand', li);
     const panel = qs('.details', li);
     const dragHandle = qs('.drag-handle', li);
+    // Remove readonly to set value, then restore it
+    input.removeAttribute('readonly');
     input.value = path;
+    input.setAttribute('readonly', '');
     chk.checked = del;
     hideChk.checked = hide;
     charLimitInput.value = charLimit || 0;
@@ -198,7 +231,10 @@
       input.classList.remove('drop-target');
       const p = ev.dataTransfer.getData('text/plain');
       if (p && !existsPath(p)) {
+        // Temporarily remove readonly to allow value change
+        input.removeAttribute('readonly');
         input.value = p;
+        input.setAttribute('readonly', '');
         syncStateFromDOM();
       }
     });
@@ -231,6 +267,46 @@
       const open = panel.classList.toggle('show');
       btnExp.classList.toggle('open', open);
     });
+    
+    btnEmpty.addEventListener('click', async () => {
+      const logPath = input.value.trim();
+      if (!logPath) {
+        showToast(t('error.path'));
+        return;
+      }
+      
+      if (confirm(`${t('confirm.empty')}:\n${logPath}?`)) {
+        try {
+          const response = await fetch('empty-log.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+              // No API key needed - using session authentication
+            },
+            body: JSON.stringify({ path: logPath })
+          });
+          
+          if (response.ok) {
+            // Show success banner
+            const emptyBanner = document.getElementById('empty-success');
+            if (emptyBanner) {
+              emptyBanner.style.display = 'flex';
+              // Hide it after 3 seconds
+              setTimeout(() => {
+                emptyBanner.style.display = 'none';
+              }, 3000);
+            }
+            showToast(t('toast.empty'));
+          } else {
+            const error = await response.text();
+            showToast(`${t('error.save')}${error}`);
+          }
+        } catch (err) {
+          showToast(`${t('error.connection')}${err.message}`);
+        }
+      }
+    });
+    
     btn.addEventListener('click', () => {
       li.remove();
       syncStateFromDOM();
@@ -243,16 +319,24 @@
     return qsa('.log-row .path').some(i => i.value === path);
   }
 
-  function syncStateFromDOM() {
-    const files = qsa('.log-row').map(row => ({
-      path: qs('.path', row).value.trim(),
-      deleteAfterRead: qs('.delete-after', row).checked,
-      fromDate: qs('.from-date', row)?.value || '',
-      fromTime: qs('.from-time', row)?.value || '',
-      forceDate: !!qs('.force-date', row)?.checked,
-      hide: !!qs('.hide-log', row)?.checked,
-      charLimit: parseInt(qs('.char-limit', row)?.value || '0', 10)
-    })).filter(f => f.path);
+  function syncStateFromDOM(skipChangeDetection = false) {
+    // Save old state to compare
+    const oldState = JSON.stringify(state.config);
+    
+    const logRows = qsa('.log-row');
+    const files = logRows.map(row => {
+      const pathInput = qs('.path', row);
+      const pathValue = pathInput ? pathInput.value.trim() : '';
+      return {
+        path: pathValue,
+        deleteAfterRead: qs('.delete-after', row).checked,
+        fromDate: qs('.from-date', row)?.value || '',
+        fromTime: qs('.from-time', row)?.value || '',
+        forceDate: !!qs('.force-date', row)?.checked,
+        hide: !!qs('.hide-log', row)?.checked,
+        charLimit: parseInt(qs('.char-limit', row)?.value || '0', 10)
+      };
+    }).filter(f => f.path);
     state.config.files = dedupe(files);
     state.config.apiEnabled = els.apiEnabled.checked;
     state.config.apiKey = els.apiKey.value.trim();
@@ -261,8 +345,12 @@
     state.config.sessionTimeout = parseInt(els.sessionTimeout.value, 10) || 30;
     buildEndpointPreview();
     
-    // Show unsaved changes warning
-    if (!state.hasUnsavedChanges) {
+    // Compare new state with old state
+    const newState = JSON.stringify(state.config);
+    const hasChanges = oldState !== newState;
+    
+    // Show unsaved changes warning only if there are real changes
+    if (!skipChangeDetection && hasChanges && !state.hasUnsavedChanges) {
       state.hasUnsavedChanges = true;
       els.unsavedChanges.style.display = 'flex';
     }
@@ -342,7 +430,7 @@
     const data = await res.json();
     els.tree.innerHTML = '';
     els.tree.appendChild(renderTree(data, true));
-    showToast('Struttura aggiornata');
+    showToast(t('toast.tree'));
   }
 
   // Nuovo renderer: usa <details>/<summary> per evitare bug di click sul primo figlio
@@ -419,17 +507,29 @@
     const rnd = Math.random().toString(36).slice(2) + '_' + Date.now();
     els.apiKey.value = 'dbg_' + rnd;
     syncStateFromDOM();
-    showToast('Nuova chiave generata');
+    showToast(t('toast.key'));
   });
   els.apiEnabled.addEventListener('change', syncStateFromDOM);
   els.maxAttempts.addEventListener('change', syncStateFromDOM);
   els.blockDuration.addEventListener('change', syncStateFromDOM);
   els.sessionTimeout && els.sessionTimeout.addEventListener('change', syncStateFromDOM);
-  els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast('Riga aggiunta'); });
-  els.btnSave.addEventListener('click', async () => { syncStateFromDOM(); await saveConfig(); });
+  els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast(t('toast.row')); });
+  els.btnSave.addEventListener('click', async () => { 
+    try {
+      // Force a fresh sync from DOM (skip change detection since we're saving)
+      syncStateFromDOM(true); 
+      await saveConfig();
+    } catch (error) {
+      showToast(t('error.save') + error.message);
+      // Show warning banner again if save failed
+      if (state.hasUnsavedChanges) {
+        els.unsavedChanges.style.display = 'flex';
+      }
+    }
+  });
   els.btnFetchTree.addEventListener('click', fetchTree);
-  els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast('Tutti espansi'); });
-  els.btnCollapseAll && els.btnCollapseAll.addEventListener('click', () => { setAllCollapsed(true); showToast('Tutti compressi'); });
+  els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast(t('toast.expand')); });
+  els.btnCollapseAll && els.btnCollapseAll.addEventListener('click', () => { setAllCollapsed(true); showToast(t('toast.collapse')); });
   
   // Collapse panel handler with height calculation
   els.btnCollapsePanel && els.btnCollapsePanel.addEventListener('click', () => {
@@ -457,7 +557,7 @@
         els.rightColumn.style.height = '';
         els.rightColumn.classList.remove('expanding');
         els.rightColumn.classList.add('expanded');
-        showToast('Pannello espanso');
+        showToast(t('toast.explorer.show'));
       }, 400);
       
     } else {
@@ -477,7 +577,7 @@
       setTimeout(() => {
         els.rightColumn.classList.remove('collapsing');
         els.rightColumn.classList.add('collapsed');
-        showToast('Pannello collassato');
+        showToast(t('toast.explorer.hide'));
       }, 400);
     }
   });
@@ -489,12 +589,12 @@
   
   // Logout handler
   els.btnLogout && els.btnLogout.addEventListener('click', async () => {
-    if (confirm('Sei sicuro di voler uscire?')) {
+    if (confirm(t('confirm.logout'))) {
       try {
         await fetch('auth.php', { method: 'DELETE' });
         window.location.href = 'login.html';
       } catch (error) {
-        showToast('Errore durante il logout');
+        showToast(t('error.connection'));
       }
     }
   });
@@ -510,17 +610,17 @@
     
     // Validation
     if (!currentPassword || !newPassword || !confirmPassword) {
-      showToast('Compila tutti i campi');
+      showToast(t('error.password.fields'));
       return;
     }
     
     if (newPassword !== confirmPassword) {
-      showToast('Le nuove password non coincidono');
+      showToast(t('error.password.match'));
       return;
     }
     
     if (newPassword.length < 8) {
-      showToast('La password deve essere di almeno 8 caratteri');
+      showToast(t('error.password.length'));
       return;
     }
     
@@ -570,7 +670,7 @@
     setTimeout(() => els.endpointDirect.classList.remove('copied'), 600);
   });
   els.btnReset.addEventListener('click', async () => {
-    if (!confirm('⚠️ ATTENZIONE: Questo resetterà TUTTO inclusa la password admin!\n\nLa password tornerà a: changeme123\n\nVuoi continuare?')) {
+    if (!confirm(t('confirm.reset'))) {
       return;
     }
     
@@ -615,16 +715,25 @@
     }
   });
   els.btnTest.addEventListener('click', async () => {
-    syncStateFromDOM();
-    await saveConfig();
-    const url = 'index.php?api_key=' + encodeURIComponent(state.config.apiKey) + '&pretty=1';
-    const res = await fetch(url);
+    // Sync without showing warning banner
+    syncStateFromDOM(true);
+    
+    await saveConfig(true); // Silent save for test
+    
+    // Use the test endpoint that works with session auth
+    const res = await fetch('test-endpoint.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
     const text = await res.text();
     const lines = text.split(/\r?\n/);
     const max = 500;
     const trimmed = lines.length > max ? lines.slice(-max).join('\n') : text;
     els.out.textContent = trimmed;
-    showToast('Test eseguito');
+    showToast(t('toast.test'));
   });
   
   // Download htaccess example
@@ -731,6 +840,8 @@
   // init
   checkAuth().then(authenticated => {
     if (authenticated) {
+      // Initialize language system first
+      initLanguage();
       // theme init
       applyTheme(localStorage.getItem('vsdbg_theme') || 'dark');
       loadConfig();

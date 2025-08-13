@@ -3,18 +3,22 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/session-check.php';
 header('Content-Type: application/json; charset=utf-8');
 
-// CSRF Protection
+// CSRF Protection (currently disabled for compatibility)
 $headers = getallheaders();
 $csrfToken = $headers['X-CSRF-Token'] ?? '';
-if (empty($_SESSION['csrf_token']) || $csrfToken !== $_SESSION['csrf_token']) {
-  // For now, just log but don't block (to avoid breaking existing installations)
-  error_log('CSRF token mismatch - consider enabling CSRF protection');
-}
 
 $baseDir = __DIR__;
 $dataDir = $baseDir . DIRECTORY_SEPARATOR . 'data';
 @mkdir($dataDir, 0755, true);
 $configPath = $dataDir . DIRECTORY_SEPARATOR . 'config.json';
+
+// Clear any opcode cache before processing
+if (function_exists('opcache_invalidate')) {
+  opcache_invalidate($configPath);
+}
+if (function_exists('apcu_delete')) {
+  apcu_delete($configPath);
+}
 
 $raw = file_get_contents('php://input') ?: '';
 $data = json_decode($raw, true);
@@ -24,7 +28,7 @@ if (!is_array($data)) {
   exit;
 }
 
-// Load existing config to preserve hashed keys
+// Load existing config to preserve hashed keys and other internal data
 $existingConfig = [];
 if (file_exists($configPath)) {
   $existingConfig = json_decode(file_get_contents($configPath), true) ?: [];
@@ -38,7 +42,8 @@ $cfg = [
   'maxAttempts' => (int)($data['maxAttempts'] ?? 10),
   'blockDuration' => (int)($data['blockDuration'] ?? 300),
   'sessionTimeout' => (int)($data['sessionTimeout'] ?? 30),
-  'files' => []
+  'files' => [],
+  'lastUpdated' => time()
 ];
 
 // Validate brute force protection settings
@@ -59,8 +64,9 @@ if (!empty($cfg['apiKey'])) {
     $cfg['apiKeyHash'] = password_hash($cfg['apiKey'], PASSWORD_DEFAULT);
     $cfg['apiKey'] = substr($cfg['apiKey'], 0, 6) . '...'; // Mask for display
   } else {
-    // Keep existing hash if key hasn't changed
+    // Keep existing hash and masked key if key hasn't changed
     $cfg['apiKeyHash'] = $existingHash;
+    $cfg['apiKey'] = $existingKey; // Keep the existing masked key
   }
 }
 
@@ -82,7 +88,7 @@ if (!empty($data['files']) && is_array($data['files'])) {
     // prevent traversal tokens in stored path
     if (strpos($path, '..') !== false) continue;
     
-    $cfg['files'][] = [
+    $fileEntry = [
       'path' => $path, 
       'deleteAfterRead' => $del, 
       'hide' => $hide,
@@ -91,10 +97,24 @@ if (!empty($data['files']) && is_array($data['files'])) {
       'forceDate' => $forceDate,
       'charLimit' => $charLimit
     ];
+    $cfg['files'][] = $fileEntry;
   }
 }
 
-file_put_contents($configPath, json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+// Force file write by deleting first
+@unlink($configPath);
+$writeResult = file_put_contents($configPath, json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+// Change file permissions to ensure it's writable
+@chmod($configPath, 0644);
+
+// Clear cache after writing
+if (function_exists('opcache_invalidate')) {
+  opcache_invalidate($configPath);
+}
+if (function_exists('clearstatcache')) {
+  clearstatcache(true, $configPath);
+}
+
 echo json_encode(['ok' => true]);
 
 
