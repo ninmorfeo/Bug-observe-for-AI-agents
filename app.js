@@ -15,6 +15,9 @@
     btnFetchTree: qs('#btn-fetch-tree'),
     btnExpandAll: qs('#btn-expand-all'),
     btnCollapseAll: qs('#btn-collapse-all'),
+    btnCollapsePanel: qs('#btn-collapse-panel'),
+    rightColumn: qs('#right-column'),
+    logFilesCont: qs('.log-files-grid'),
     tree: qs('#tree-container'),
     logList: qs('#log-list'),
     btnAddRow: qs('#btn-add-row'),
@@ -427,6 +430,58 @@
   els.btnFetchTree.addEventListener('click', fetchTree);
   els.btnExpandAll && els.btnExpandAll.addEventListener('click', () => { setAllCollapsed(false); showToast('Tutti espansi'); });
   els.btnCollapseAll && els.btnCollapseAll.addEventListener('click', () => { setAllCollapsed(true); showToast('Tutti compressi'); });
+  
+  // Collapse panel handler with height calculation
+  els.btnCollapsePanel && els.btnCollapsePanel.addEventListener('click', () => {
+    const isCollapsed = els.rightColumn.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+      // Expanding sequence: start expansion but keep content hidden
+      els.rightColumn.classList.remove('collapsed');
+      els.rightColumn.classList.add('expanding');
+      
+      // Start grid expansion immediately
+      els.logFilesCont.classList.remove('panel-collapsed');
+      
+      // Show content only after transform animation completes
+      setTimeout(() => {
+        const contentWrapper = els.rightColumn.querySelector('.content-wrapper');
+        if (contentWrapper) {
+          contentWrapper.style.display = '';
+          contentWrapper.style.background = '';
+        }
+      }, 350);
+      
+      // Complete expansion
+      setTimeout(() => {
+        els.rightColumn.style.height = '';
+        els.rightColumn.classList.remove('expanding');
+        els.rightColumn.classList.add('expanded');
+        showToast('Pannello espanso');
+      }, 400);
+      
+    } else {
+      // Collapsing sequence: calculate and fix height first
+      const currentHeight = els.rightColumn.offsetHeight;
+      els.rightColumn.style.height = currentHeight + 'px';
+      
+      els.rightColumn.classList.remove('expanded');
+      els.rightColumn.classList.add('collapsing');
+      
+      // Start grid compression after content starts fading
+      setTimeout(() => {
+        els.logFilesCont.classList.add('panel-collapsed');
+      }, 150);
+      
+      // Complete collapse state
+      setTimeout(() => {
+        els.rightColumn.classList.remove('collapsing');
+        els.rightColumn.classList.add('collapsed');
+        showToast('Pannello collassato');
+      }, 400);
+    }
+  });
+  
   els.btnTheme && els.btnTheme.addEventListener('click', () => {
     const current = localStorage.getItem('vsdbg_theme') || 'dark';
     applyTheme(current === 'dark' ? 'light' : 'dark');

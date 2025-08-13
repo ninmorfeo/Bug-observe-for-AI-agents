@@ -13,6 +13,7 @@
       <p class="subtitle">Amministrazione endpoint log v2.0</p>
     </div>
     <div class="header-actions">
+      <button id="btn-save" class="primary">Salva configurazione</button>
       <button id="btn-theme" class="icon-btn" title="Tema notte/chiaro" aria-label="Tema notte/chiaro" data-mode="dark">
         <svg class="svg-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="4" />
@@ -60,7 +61,10 @@
           </div>
         </div>
         <div>
-          <h3>Stato del Sistema</h3>
+          <h3>
+            <span id="api-status-indicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle"></span>
+            Stato del Sistema
+          </h3>
           <div class="status">
             <div>
               <small>Endpoint API</small>
@@ -77,30 +81,36 @@
     </section>
 
     <section class="panel">
-      <div class="columns">
+      <div id="log-files-cont" class="log-files-grid">
         <div class="col">
           <h2>Log files da esporre dagli Endpoint</h2>
           <div id="drop-hint" class="hint">Trascina qui i file di log dal riquadro a destra</div>
           <ul id="log-list" class="log-list" aria-live="polite"></ul>
           <div class="actions">
             <button id="btn-add-row" class="secondary">Aggiungi riga</button>
-            <button id="btn-save" class="primary">Salva configurazione</button>
           </div>
         </div>
-        <div class="col">
-          <div class="header-row">
-            <h2>Struttura cartelle</h2>
-            <div class="inline">
-              <button id="btn-fetch-tree" class="secondary">Fetch cartelle</button>
-              <button id="btn-expand-all" class="secondary">Espandi tutto</button>
-              <button id="btn-collapse-all" class="secondary">Comprimi tutto</button>
+        <div class="col" id="right-column">
+          <button id="btn-collapse-panel" class="icon-btn collapse-btn" title="Collassa pannello" aria-label="Collassa pannello">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <div class="content-wrapper">
+            <div class="header-row">
+              <h2>Struttura cartelle</h2>
+              <div class="inline">
+                <button id="btn-fetch-tree" class="secondary">Fetch cartelle</button>
+                <button id="btn-expand-all" class="secondary">Espandi tutto</button>
+                <button id="btn-collapse-all" class="secondary">Comprimi tutto</button>
+              </div>
             </div>
-          </div>
-          <div id="tree-container" class="tree" role="tree"></div>
-          <div class="info-box">
-            <p><strong>ℹ️ Come usare:</strong></p>
-            <p>Trascina i file dall'explorer al campo di input nel box "Nomi file di log da esaminare" per aggiungere i file all'esposizione.</p>
-            <p><strong>NOTA BENE:</strong> Nell'explorer vengono visualizzati solo file con estensione .log, .txt o .err.</p>
+            <div id="tree-container" class="tree" role="tree"></div>
+            <div class="info-box">
+              <p><strong>ℹ️ Come usare:</strong></p>
+              <p>Trascina i file dall'explorer al campo di input nel box "Nomi file di log da esaminare" per aggiungere i file all'esposizione.</p>
+              <p><strong>NOTA BENE:</strong> Nell'explorer vengono visualizzati solo file con estensione .log, .txt o .err.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -116,7 +126,22 @@
       <h2>🔐 Sicurezza e Account</h2>
       <div class="columns">
         <div class="col">
-          <h3>Cambia Password</h3>
+          <h3>Dati Personali</h3>
+          <div class="account-fields">
+            <div class="field-row compact">
+              <label for="user-nickname">Nickname</label>
+              <input id="user-nickname" type="text" placeholder="SuperAdmin" />
+              <small class="field-help">Nome visualizzato nel sistema</small>
+            </div>
+            <div class="field-row compact">
+              <label for="user-email">Email <span style="color:#ef4444">*</span></label>
+              <input id="user-email" type="email" placeholder="admin@example.com" required />
+              <small class="field-help">Obbligatoria per il recupero password</small>
+            </div>
+            <button id="btn-save-profile" class="primary" style="margin-top:12px">Salva Profilo</button>
+          </div>
+          
+          <h3 style="margin-top:30px">Cambia Password</h3>
           <div class="password-change-form">
             <div class="field-row">
               <label for="current-password">Password Attuale</label>
@@ -125,7 +150,13 @@
             <div class="field-row">
               <label for="new-password">Nuova Password</label>
               <input type="password" id="new-password" autocomplete="new-password" />
-              <small class="field-help">Minimo 8 caratteri, consigliati 12+</small>
+              <small class="field-help">Requisiti: min 8 caratteri, maiuscole, minuscole e numeri</small>
+              <div id="password-requirements" style="margin-top:8px;font-size:12px;display:none">
+                <div class="req-item" data-req="length">❌ Almeno 8 caratteri</div>
+                <div class="req-item" data-req="uppercase">❌ Una lettera maiuscola</div>
+                <div class="req-item" data-req="lowercase">❌ Una lettera minuscola</div>
+                <div class="req-item" data-req="number">❌ Un numero</div>
+              </div>
             </div>
             <div class="field-row">
               <label for="confirm-password">Conferma Nuova Password</label>
@@ -136,18 +167,28 @@
           </div>
         </div>
         <div class="col">
-          <h3>Impostazioni di Sicurezza</h3>
+          <h3>Stato Sessione</h3>
+          <div class="session-status" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:20px">
+            <div class="info-item" style="font-size:16px;text-align:center">
+              <strong>⏱️ Sessione scade tra:</strong> <span id="session-expires" style="font-weight:600;color:var(--accent)">-</span>
+            </div>
+          </div>
+          
+          <h3>Informazioni Account</h3>
           <div class="security-unified">
             <div class="account-status">
               <div class="info-item">
-                <strong>👤 Account:</strong> <span id="admin-username">admin</span>
+                <strong>👤 Username:</strong> <span id="admin-username">admin</span>
               </div>
               <div class="info-item">
-                <strong>⏱️ Sessione scade tra:</strong> <span id="session-expires">-</span>
+                <strong>🎭 Nickname:</strong> <span id="admin-nickname" class="not-configured">Non configurato</span>
+              </div>
+              <div class="info-item">
+                <strong>📧 Email:</strong> <span id="admin-email" class="not-configured">Non configurata</span>
               </div>
             </div>
             
-            <div class="security-controls">
+            <div class="security-controls" style="margin-top:20px">
               <h4>Protezione Brute Force</h4>
               <div class="field-row compact">
                 <label for="max-attempts">Tentativi massimi login</label>
