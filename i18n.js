@@ -315,6 +315,9 @@ function applyTranslations() {
   });
 }
 
+// Make applyTranslations globally accessible
+window.applyTranslations = applyTranslations;
+
 // Toggle language
 function toggleLanguage() {
   const currentLang = localStorage.getItem('vsdbg_language') || 'en';

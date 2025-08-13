@@ -15,28 +15,18 @@ Password: changeme123
 
 ⚠️ **IMPORTANT**: Change the default password immediately after first login!
 
-## 📸 Screenshots
-
-### Admin Interface
-![Admin Interface](./docs/images/admin-interface.png)
-*Main admin panel with log file management and API configuration*
-
-### Security Settings
-![Security Settings](./docs/images/settings-panel.png)
-*Comprehensive security configuration panel*
-
-### File Explorer
-![File Explorer](./docs/images/file-explorer.png)
-*Interactive file tree with drag-and-drop functionality*
-
-### API Response Example
-![API Response](./docs/images/api-response.png)
-*Clean JSON output structure (v2.0.1+)*
 
 **Offrimi un caffè ☕**  
 <a href="https://www.paypal.com/donate/?business=eyeart.agency@gmail.com&no_recurring=0&currency_code=EUR&item_name=Support+BugObserve+for+AI+Agents+Development">
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
 </a>
+
+## 📸 Screenshots
+
+### Admin Interface
+![Admin Interface](./docs/images/interface.png)
+*Main admin panel with log file management and API configuration*
+
 
 ## Version 2.0.1 - Enhanced Edition
 

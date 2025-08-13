@@ -187,6 +187,27 @@
     if (hide) {
       li.classList.add('hidden-marked');
     }
+    
+    // Apply translations to cloned template elements
+    li.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      const text = t(key);
+      
+      if (element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) {
+        element.value = text;
+      } else if (element.tagName === 'INPUT' && element.placeholder) {
+        element.placeholder = text;
+      } else {
+        element.textContent = text;
+      }
+    });
+    
+    // Apply title translations
+    li.querySelectorAll('[data-i18n-title]').forEach(element => {
+      const key = element.getAttribute('data-i18n-title');
+      element.title = t(key);
+      element.setAttribute('aria-label', t(key));
+    });
 
     // Improved drag & drop with visual gaps
     dragHandle.addEventListener('dragstart', ev => {
