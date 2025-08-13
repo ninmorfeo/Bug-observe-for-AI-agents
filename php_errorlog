@@ -1,0 +1,69 @@
+[13-Aug-2025 17:38:52 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:38:52 UTC] save-config: Received files data: [{"path":"\/license.txt","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:38:52 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:38:52 UTC] save-config: Adding file: {"path":"\/license.txt","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:38:52 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:38:52 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:38:52 UTC] save-config: Write result (bytes): 499
+[13-Aug-2025 17:41:50 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:41:50 UTC] save-config: Received files data: [{"path":"\/wp-content\/debug.log","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:41:50 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:41:50 UTC] save-config: Adding file: {"path":"\/wp-content\/debug.log","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:41:50 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:41:50 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:41:50 UTC] save-config: Write result (bytes): 508
+[13-Aug-2025 17:42:10 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:42:10 UTC] save-config: Received files data: [{"path":"\/license.txt","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:42:10 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:42:10 UTC] save-config: Adding file: {"path":"\/license.txt","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:42:10 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:42:10 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:42:10 UTC] save-config: Write result (bytes): 499
+[13-Aug-2025 17:46:34 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:46:34 UTC] save-config: Received files data: [{"path":"\/wp-content\/debug.log","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:46:34 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:46:34 UTC] save-config: Adding file: {"path":"\/wp-content\/debug.log","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:46:34 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:46:34 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:46:34 UTC] save-config: Write result (bytes): 508
+[13-Aug-2025 17:49:33 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:49:33 UTC] save-config: Received files data: [{"path":"\/wp-content\/debug.log","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:49:33 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:49:33 UTC] save-config: Adding file: {"path":"\/wp-content\/debug.log","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:49:33 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:49:33 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:49:33 UTC] save-config: Write result (bytes): 508
+[13-Aug-2025 17:49:46 UTC] index.php: Reading config from /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json, size: 508
+[13-Aug-2025 17:49:46 UTC] index.php: Config content: {
+    "apiEnabled": true,
+    "apiKey": "dbg_v4...",
+    "apiKeyHash": "$2y$10$8phljVYF8ceY43Kto2OVo.VAJsJSTtZvmOmSrK.81NbmQ4TtlhgxO",
+    "maxAttempts": 10,
+    "blockDuration": 300,
+    "sessionTime
+[13-Aug-2025 17:49:46 UTC] index.php: Loaded 1 files from config
+[13-Aug-2025 17:49:56 UTC] index.php: Reading config from /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json, size: 508
+[13-Aug-2025 17:49:56 UTC] index.php: Config content: {
+    "apiEnabled": true,
+    "apiKey": "dbg_v4...",
+    "apiKeyHash": "$2y$10$8phljVYF8ceY43Kto2OVo.VAJsJSTtZvmOmSrK.81NbmQ4TtlhgxO",
+    "maxAttempts": 10,
+    "blockDuration": 300,
+    "sessionTime
+[13-Aug-2025 17:49:56 UTC] index.php: Loaded 1 files from config
+[13-Aug-2025 17:50:02 UTC] CSRF token mismatch - consider enabling CSRF protection
+[13-Aug-2025 17:50:02 UTC] save-config: Received files data: [{"path":"\/license.txt","deleteAfterRead":false,"fromDate":"","fromTime":"","forceDate":false,"hide":false,"charLimit":0}]
+[13-Aug-2025 17:50:02 UTC] save-config: Processing 1 files
+[13-Aug-2025 17:50:02 UTC] save-config: Adding file: {"path":"\/license.txt","deleteAfterRead":false,"hide":false,"fromDate":"","fromTime":"","forceDate":false,"charLimit":0}
+[13-Aug-2025 17:50:02 UTC] save-config: Final config files count: 1
+[13-Aug-2025 17:50:02 UTC] save-config: Saving to path: /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json
+[13-Aug-2025 17:50:02 UTC] save-config: Write result (bytes): 499
+[13-Aug-2025 17:52:27 UTC] index.php: Reading config from /home/customer/www/paolob161.sg-host.com/public_html/dbv/data/config.json, size: 499
+[13-Aug-2025 17:52:27 UTC] index.php: Config content: {
+    "apiEnabled": true,
+    "apiKey": "dbg_v4...",
+    "apiKeyHash": "$2y$10$kIwhnpZWUnLDAGJty48LouJzS0JWzcqDb0voNrSVs9zlfZYO/xNYq",
+    "maxAttempts": 10,
+    "blockDuration": 300,
+    "sessionTime
+[13-Aug-2025 17:52:27 UTC] index.php: Loaded 1 files from config

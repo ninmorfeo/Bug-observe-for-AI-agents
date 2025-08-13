@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BugObserve for AI Agents – Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <h1 data-i18n="app.title">BugObserve for AI Agents</h1>
+      <p class="subtitle" data-i18n="app.subtitle">Amministrazione endpoint log v2.0</p>
+    </div>
+    <div class="header-actions">
+      <button id="btn-save" class="primary" data-i18n="btn.save">Salva configurazione</button>
+      <button id="btn-language" class="icon-btn" data-i18n-title="btn.language" aria-label="Language toggle" data-lang="en">
+        <span class="flag-text">EN</span>
+      </button>
+      <button id="btn-theme" class="icon-btn" data-i18n-title="btn.theme" aria-label="Tema notte/chiaro" data-mode="dark">
+        <svg class="svg-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" />
+        </svg>
+        <svg class="svg-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" fill="currentColor" />
+        </svg>
+      </button>
+      <a id="btn-bug" class="icon-btn" href="mailto:eyeart.agency@gmail.com?subject=Segnalazione%20bug%20VS%20Code%20Debug%202.0" title="Segnala un bug" aria-label="Segnala un bug">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="2" />
+          <ellipse cx="12" cy="14" rx="5" ry="6" />
+          <path d="M7 14h10M6 11l3 2M18 11l-3 2M6 17l3-2M18 17l-3-2" />
+        </svg>
+      </a>
+      <button id="btn-logout" class="icon-btn" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="unsaved-changes" class="warning-banner" style="display: none;">
+      <span data-i18n="banner.unsaved">⚠️ Ricordati di salvare la configurazione</span>
+    </div>
+    <div id="save-success" class="success-banner" style="display: none;">
+      <span data-i18n="banner.saved">✅ Configurazione salvata con successo</span>
+    </div>
+    <div id="empty-success" class="success-banner" style="display: none;">
+      <span data-i18n="banner.empty">✅ File svuotato con successo</span>
+    </div>
+    <section class="panel">
+      <h2 data-i18n="section.api">Configurazione API Log</h2>
+      <div class="grid-2">
+        <div>
+          <label class="toggle">
+            <input type="checkbox" id="api-enabled" />
+            <span data-i18n="api.enabled">Abilita API</span>
+          </label>
+          <div class="field-row">
+            <label for="api-key" data-i18n="api.key">Chiave API</label>
+            <div class="inline">
+              <input id="api-key" type="text" readonly>
+              <button id="btn-generate" class="danger" data-i18n="api.generate">Genera Nuova Chiave API</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>
+            <span id="api-status-indicator" style="display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle"></span>
+            <span data-i18n="api.status">Stato del Sistema</span>
+          </h3>
+          <div class="status">
+            <div>
+              <small data-i18n="api.endpoint">Endpoint API</small>
+              <code id="endpoint-url" class="copyable" data-tip="Clicca per copiare" aria-label="Clicca per copiare"></code>
+            </div>
+            <div>
+              <small data-i18n="api.direct">URL Controllo / Accesso Diretto</small>
+              <code id="endpoint-direct" class="copyable" data-tip="Clicca per copiare" aria-label="Clicca per copiare"></code>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div id="log-files-cont" class="log-files-grid">
+        <div class="col">
+          <h2 data-i18n="section.files">Log files da esporre dagli Endpoint</h2>
+          <div id="drop-hint" class="hint" data-i18n="api.drop.hint">Trascina qui i file di log dal riquadro a destra</div>
+          <ul id="log-list" class="log-list" aria-live="polite"></ul>
+          <div class="actions">
+            <button id="btn-add-row" class="secondary" data-i18n="files.add">Aggiungi riga</button>
+          </div>
+        </div>
+        <div class="col" id="right-column">
+          <button id="btn-collapse-panel" class="icon-btn collapse-btn" data-i18n-title="explorer.toggle" aria-label="Mostra/Nascondi Explorer">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <div class="content-wrapper">
+            <div class="header-row">
+              <h2 data-i18n="section.explorer">Struttura cartelle</h2>
+              <div class="inline">
+                <button id="btn-fetch-tree" class="secondary" data-i18n="explorer.fetch">Fetch cartelle</button>
+                <button id="btn-expand-all" class="secondary" data-i18n="explorer.expand">Espandi tutto</button>
+                <button id="btn-collapse-all" class="secondary" data-i18n="explorer.collapse">Comprimi tutto</button>
+              </div>
+            </div>
+            <div id="tree-container" class="tree" role="tree"></div>
+            <div class="info-box">
+              <p><strong data-i18n="note.usage">ℹ️ Come usare:</strong></p>
+              <p data-i18n="note.drag">Trascina i file dall'explorer al campo di input nel box "Nomi file di log da esaminare" per aggiungere i file all'esposizione.</p>
+              <p><strong data-i18n="note.important">NOTA BENE:</strong> <span data-i18n="note.extensions">Nell'explorer vengono visualizzati solo file con estensione .log, .txt o .err.</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="api.test">Test endpoint</h2>
+      <button id="btn-test" class="primary" data-i18n="api.test">Testa endpoint</button>
+      <pre id="test-output" class="output" aria-live="polite"></pre>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="section.security">🔐 Sicurezza e Account</h2>
+      <div class="columns">
+        <div class="col">
+          <h3 data-i18n="security.personal">Dati Personali</h3>
+          <div class="account-fields">
+            <div class="field-row compact">
+              <label for="user-nickname" data-i18n="security.user">Nickname</label>
+              <input id="user-nickname" type="text" placeholder="SuperAdmin" />
+              <small class="field-help" data-i18n="security.nickname.description">Nome visualizzato nel sistema</small>
+            </div>
+            <div class="field-row compact">
+              <label for="user-email" data-i18n="note.email">Email <span style="color:#ef4444">*</span></label>
+              <input id="user-email" type="email" placeholder="admin@example.com" required />
+              <small class="field-help" data-i18n="note.email">Obbligatoria per il recupero password</small>
+            </div>
+            <button id="btn-save-profile" class="primary" style="margin-top:12px" data-i18n="btn.save">Salva Profilo</button>
+          </div>
+          
+          <h3 style="margin-top:30px" data-i18n="security.change.password">Cambia Password</h3>
+          <div class="password-change-form">
+            <div class="field-row">
+              <label for="current-password" data-i18n="security.password.current">Password Attuale</label>
+              <input type="password" id="current-password" autocomplete="current-password" />
+            </div>
+            <div class="field-row">
+              <label for="new-password" data-i18n="security.password.new">Nuova Password</label>
+              <input type="password" id="new-password" autocomplete="new-password" />
+              <small class="field-help" data-i18n="security.help.requirements">Requisiti: min 8 caratteri, maiuscole, minuscole e numeri</small>
+              <div id="password-requirements" style="margin-top:8px;font-size:12px;display:none">
+                <div class="req-item" data-req="length">❌ Almeno 8 caratteri</div>
+                <div class="req-item" data-req="uppercase">❌ Una lettera maiuscola</div>
+                <div class="req-item" data-req="lowercase">❌ Una lettera minuscola</div>
+                <div class="req-item" data-req="number">❌ Un numero</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="confirm-password" data-i18n="security.password.confirm">Conferma Nuova Password</label>
+              <input type="password" id="confirm-password" autocomplete="new-password" />
+            </div>
+            <div class="password-strength" id="password-strength"></div>
+            <button id="btn-change-password" class="primary" data-i18n="security.password.change">Cambia Password</button>
+          </div>
+        </div>
+        <div class="col">
+          <h3 data-i18n="security.session.status">Stato Sessione</h3>
+          <div class="session-status" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:20px">
+            <div class="info-item" style="font-size:16px;text-align:center">
+              <strong data-i18n="security.expires">⏱️ Sessione scade tra:</strong> <span id="session-expires" style="font-weight:600;color:var(--accent)">-</span>
+            </div>
+          </div>
+          
+          <h3 data-i18n="security.account.info">Informazioni Account</h3>
+          <div class="security-unified">
+            <div class="account-status">
+              <div class="info-item">
+                <strong data-i18n="security.user">👤 Username:</strong> <span id="admin-username">admin</span>
+              </div>
+              <div class="info-item">
+                <strong data-i18n="security.nickname">🎭 Nickname:</strong> <span id="admin-nickname" class="not-configured" data-i18n="security.nickname.not.configured">Non configurato</span>
+              </div>
+              <div class="info-item">
+                <strong>📧 Email:</strong> <span id="admin-email" class="not-configured" data-i18n="security.email.not.configured">Non configurata</span>
+              </div>
+            </div>
+            
+            <div class="security-controls" style="margin-top:20px">
+              <h4 data-i18n="security.brute.force">Protezione Brute Force</h4>
+              <div class="field-row compact">
+                <label for="max-attempts" data-i18n="security.attempts">Tentativi massimi login</label>
+                <input id="max-attempts" type="number" min="3" max="100" value="10" />
+                <small class="field-help" data-i18n="security.help.attempts">Tentativi prima del blocco IP</small>
+              </div>
+              
+              <div class="field-row compact">
+                <label for="block-duration" data-i18n="security.block">Durata blocco (secondi)</label>
+                <input id="block-duration" type="number" min="60" max="86400" value="300" />
+                <small class="field-help" data-i18n="security.help.block">Tempo di blocco dopo tentativi falliti</small>
+              </div>
+              
+              <div class="field-row compact">
+                <label for="session-timeout" data-i18n="security.session">Timeout sessione (minuti)</label>
+                <input id="session-timeout" type="number" min="5" max="1440" value="30" />
+                <small class="field-help" data-i18n="security.help.session">Logout automatico dopo inattività</small>
+              </div>
+            </div>
+            
+            <div class="security-note">
+              <p class="hint" data-i18n="security.help.note">💡 Queste impostazioni si applicano sia al login admin che all'API endpoint</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="columns">
+      <section class="panel security-warning">
+        <h2 data-i18n="security.warning.title">⚠️ Sicurezza</h2>
+        <div class="warning-content">
+          <p><strong>ATTENZIONE:</strong> <span data-i18n="security.warning.text">Ricordati di proteggere la tua cartella in ambiente di produzione inserendo un .htaccess corretto!</span></p>
+          <p data-i18n="security.warning.description">Questo impedirà accessi non autorizzati ai file di configurazione e ai log.</p>
+          <button id="btn-download-htaccess" class="primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 6px;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span data-i18n="security.download.htaccess">Scarica .htaccess di esempio</span>
+          </button>
+          <small style="display: block; margin-top: 10px; color: var(--muted);" data-i18n="security.htaccess.note">
+            Dopo il download, rinomina il file in .htaccess e posizionalo nella cartella bugobserve-ai-agents
+          </small>
+        </div>
+      </section>
+      
+      <section class="panel danger-section">
+        <h2 data-i18n="security.reset.title">🔄 Reset completo</h2>
+        <div class="danger-box">
+          <p><strong data-i18n="security.reset.warning">⚠️ ATTENZIONE:</strong> <span data-i18n="security.reset.warning">Questa operazione:</span></p>
+          <ul>
+            <li data-i18n="security.reset.list.1">Rigenera una nuova chiave API</li>
+            <li data-i18n="security.reset.list.2">Reimposta la configurazione</li>
+            <li data-i18n="security.reset.list.3">Pulisce la lista dei file</li>
+            <li data-i18n="security.reset.list.4">Ripristina le impostazioni di sicurezza ai valori predefiniti</li>
+            <li><strong style="color: var(--danger);" data-i18n="security.reset.list.5">Resetta la password admin a: changeme123</strong></li>
+            <li data-i18n="security.reset.list.6">Cancella tutti i tentativi di login falliti</li>
+            <li data-i18n="security.reset.list.7">Rimuove tutti i blocchi IP attivi</li>
+          </ul>
+          <p style="margin-top: 12px; color: var(--danger);">
+            <strong data-i18n="security.reset.irreversible">Questa azione è irreversibile! Dovrai effettuare nuovamente il login.</strong>
+          </p>
+          <button id="btn-reset" class="danger" style="width: 100%; margin-top: 16px;" data-i18n="api.reset">
+            🗑️ Esegui Reset Completo
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <footer class="app-footer">
+    <small><span data-i18n="footer.copyright">2025© - BugObserve for AI Agents v2.0 by</span> <a href="https://eyeart.it" target="_blank" rel="noopener">Eyeart Agency</a></small>
+  </footer>
+
+  <template id="row-template">
+    <li class="log-row">
+      <div class="drag-handle" draggable="true" title="Trascina per riordinare">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="8" cy="6" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="6" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="18" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <input type="text" class="path" readonly data-i18n="files.path" placeholder="/percorso/al/file.log" />
+      <button class="empty-log" data-i18n-title="files.empty" aria-label="Svuota contenuto log">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c0-1 1-2 2-2v2"/>
+          <line x1="10" y1="11" x2="10" y2="17"/>
+          <line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
+      </button>
+      <button class="expand" data-i18n-title="files.expand" aria-label="Espandi opzioni">
+        <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </button>
+      <button class="remove" data-i18n-title="files.remove" aria-label="Rimuovi log dalla lista">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="details">
+        <div class="date-time-row">
+          <label class="field">
+            <span data-i18n="files.date">Da data</span>
+            <input type="date" class="from-date" />
+          </label>
+          <label class="field">
+            <span data-i18n="files.time">Ora</span>
+            <input type="time" class="from-time" step="1" />
+          </label>
+        </div>
+        <label class="chk">
+          <input type="checkbox" class="hide-log" /> <span data-i18n="files.hide">Non mostrare</span>
+        </label>
+        <label class="chk">
+          <input type="checkbox" class="force-date" /> <span data-i18n="files.force">Forza filtro data</span>
+        </label>
+        <label class="chk">
+          <input type="checkbox" class="delete-after" /> <span data-i18n="files.delete">Cancella dopo la lettura</span>
+        </label>
+        <label class="field">
+          <span data-i18n="files.limit">Limite caratteri (0 = illimitato)</span>
+          <input type="number" class="char-limit" min="0" value="0" placeholder="0" />
+        </label>
+      </div>
+    </li>
+  </template>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
