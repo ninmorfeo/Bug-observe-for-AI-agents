@@ -107,7 +107,7 @@ const translations = {
     // Notes and descriptions
     'note.usage': 'Come usare:',
     'note.drag': 'Trascina i file dall\'explorer al campo di input nel box "Nomi file di log da esaminare" per aggiungere i file all\'esposizione.',
-    'note.extensions': 'Nell\'explorer vengono visualizzati solo file con estensione .log, .txt o .err.',
+    'note.extensions': 'Nell\'explorer vengono visualizzati file di log con varie estensioni (.log, .txt, .err, .out, .json, .xml, ecc.) e file di log comuni senza estensione (php_errorlog, access_log, error_log, ecc.).',
     'note.important': 'NOTA BENE:',
     'note.email': 'Obbligatoria per il recupero password',
     
@@ -246,7 +246,7 @@ const translations = {
     // Notes and descriptions
     'note.usage': 'How to use:',
     'note.drag': 'Drag files from the explorer to the input field in the "Log file names to examine" box to add files to the exposure.',
-    'note.extensions': 'Only files with .log, .txt or .err extensions are displayed in the explorer.',
+    'note.extensions': 'The explorer displays log files with various extensions (.log, .txt, .err, .out, .json, .xml, etc.) and common log files without extensions (php_errorlog, access_log, error_log, etc.).',
     'note.important': 'NOTE:',
     'note.email': 'Required for password recovery',
     

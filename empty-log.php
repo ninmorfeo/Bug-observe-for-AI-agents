@@ -40,9 +40,33 @@ if (!is_array($data) || empty($data['path'])) {
 $logPath = $data['path'];
 
 // Validate path (basic security check)
-if (strpos($logPath, '..') !== false || !preg_match('/\.(log|txt|err)$/i', $logPath)) {
+if (strpos($logPath, '..') !== false) {
   http_response_code(400);
-  echo json_encode(['error' => 'Invalid log path']);
+  echo json_encode(['error' => 'Invalid log path - traversal attempt']);
+  exit;
+}
+
+// Validate file type
+$ext = strtolower(pathinfo($logPath, PATHINFO_EXTENSION));
+$filename = strtolower(basename($logPath));
+
+$allowedExtensions = [
+  'log', 'txt', 'out', 'err', 'evt', 'evtx', 'access', 'error', 'trc', 'ldf', 
+  'binlog', 'audit', 'trace', 'debug', 'json', 'xml', 'csv'
+];
+
+$allowedFilenames = [
+  'access_log', 'error_log', 'ssl_access_log', 'ssl_error_log', 'php_errorlog',
+  'php_errors', 'syslog', 'messages', 'kern.log', 'auth.log', 'mail.log',
+  'cron.log', 'daemon.log', 'user.log', 'lastlog', 'wtmp', 'btmp', 'utmp',
+  'secure', 'maillog', 'httpd_access_log', 'httpd_error_log', 'catalina.out',
+  'gc.log', 'application.log', 'system.log', 'install.log', 'boot.log',
+  'dmesg', 'xferlog', 'sulog', 'faillog'
+];
+
+if (!in_array($ext, $allowedExtensions, true) && !in_array($filename, $allowedFilenames, true)) {
+  http_response_code(400);
+  echo json_encode(['error' => 'Invalid log file type']);
   exit;
 }
 
