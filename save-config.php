@@ -82,9 +82,29 @@ if (!empty($data['files']) && is_array($data['files'])) {
     $charLimit = (int)($f['charLimit'] ?? 0);
     
     if ($path === '') continue;
-    // allow only .log/.txt/.err
+    // Check if file is allowed (extensions and specific filenames)
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-    if (!in_array($ext, ['log','txt','err'], true)) continue;
+    $filename = strtolower(basename($path));
+    
+    $allowedExtensions = [
+      'log', 'txt', 'out', 'err', 'evt', 'evtx', 'access', 'error', 'trc', 'ldf', 
+      'binlog', 'audit', 'trace', 'debug', 'json', 'xml', 'csv'
+    ];
+    
+    $allowedFilenames = [
+      'access_log', 'error_log', 'ssl_access_log', 'ssl_error_log', 'php_errorlog',
+      'php_errors', 'syslog', 'messages', 'kern.log', 'auth.log', 'mail.log',
+      'cron.log', 'daemon.log', 'user.log', 'lastlog', 'wtmp', 'btmp', 'utmp',
+      'secure', 'maillog', 'httpd_access_log', 'httpd_error_log', 'catalina.out',
+      'gc.log', 'application.log', 'system.log', 'install.log', 'boot.log',
+      'dmesg', 'xferlog', 'sulog', 'faillog'
+    ];
+    
+    // Allow if has valid extension OR is a known log filename
+    if (!in_array($ext, $allowedExtensions, true) && !in_array($filename, $allowedFilenames, true)) {
+      continue;
+    }
+    
     // prevent traversal tokens in stored path
     if (strpos($path, '..') !== false) continue;
     
