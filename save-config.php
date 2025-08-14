@@ -42,6 +42,8 @@ $cfg = [
   'maxAttempts' => (int)($data['maxAttempts'] ?? 10),
   'blockDuration' => (int)($data['blockDuration'] ?? 300),
   'sessionTimeout' => (int)($data['sessionTimeout'] ?? 30),
+  'adminNickname' => (string)($data['adminNickname'] ?? ''),
+  'adminEmail' => (string)($data['adminEmail'] ?? ''),
   'files' => [],
   'lastUpdated' => time()
 ];

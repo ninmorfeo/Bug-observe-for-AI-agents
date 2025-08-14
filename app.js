@@ -37,6 +37,11 @@
     passwordStrength: qs('#password-strength'),
     adminUsername: qs('#admin-username'),
     sessionExpires: qs('#session-expires'),
+    userNickname: qs('#user-nickname'),
+    userEmail: qs('#user-email'),
+    adminNickname: qs('#admin-nickname'),
+    adminEmail: qs('#admin-email'),
+    btnSaveProfile: qs('#btn-save-profile'),
   };
 
   const state = {
@@ -46,6 +51,8 @@
       maxAttempts: 10,
       blockDuration: 300,
       sessionTimeout: 30,
+      adminNickname: '',
+      adminEmail: '',
       files: [] // { path, deleteAfterRead }
     },
     hasUnsavedChanges: false
@@ -101,6 +108,22 @@
     els.blockDuration.value = state.config.blockDuration || 300;
     els.sessionTimeout.value = state.config.sessionTimeout || 30;
     
+    // Load admin info
+    if (els.userNickname) els.userNickname.value = state.config.adminNickname || '';
+    if (els.userEmail) els.userEmail.value = state.config.adminEmail || '';
+    
+    // Update display
+    if (els.adminNickname) {
+      const nickname = state.config.adminNickname || 'Non configurato';
+      els.adminNickname.textContent = nickname;
+      els.adminNickname.classList.toggle('not-configured', !state.config.adminNickname);
+    }
+    if (els.adminEmail) {
+      const email = state.config.adminEmail || 'Non configurato';
+      els.adminEmail.textContent = email;
+      els.adminEmail.classList.toggle('not-configured', !state.config.adminEmail);
+    }
+    
     // Temporarily disable change tracking during initial load
     const prevState = state.hasUnsavedChanges;
     state.hasUnsavedChanges = false;
@@ -110,6 +133,9 @@
     
     // Restore state (should be false on initial load)
     state.hasUnsavedChanges = prevState;
+    
+    // Update session timer after config is loaded
+    updateSessionTimer();
   }
 
   async function saveConfig(silent = false) {
@@ -364,6 +390,8 @@
     state.config.maxAttempts = parseInt(els.maxAttempts.value, 10) || 10;
     state.config.blockDuration = parseInt(els.blockDuration.value, 10) || 300;
     state.config.sessionTimeout = parseInt(els.sessionTimeout.value, 10) || 30;
+    if (els.userNickname) state.config.adminNickname = els.userNickname.value.trim();
+    if (els.userEmail) state.config.adminEmail = els.userEmail.value.trim();
     buildEndpointPreview();
     
     // Compare new state with old state
@@ -534,6 +562,63 @@
   els.maxAttempts.addEventListener('change', syncStateFromDOM);
   els.blockDuration.addEventListener('change', syncStateFromDOM);
   els.sessionTimeout && els.sessionTimeout.addEventListener('change', syncStateFromDOM);
+  els.userNickname && els.userNickname.addEventListener('input', syncStateFromDOM);
+  els.userEmail && els.userEmail.addEventListener('input', syncStateFromDOM);
+  
+  // Save profile button handler
+  els.btnSaveProfile && els.btnSaveProfile.addEventListener('click', async (e) => {
+    const btn = e.target;
+    const originalText = btn.textContent;
+    
+    try {
+      // Visual feedback - disable button and show loading
+      btn.disabled = true;
+      btn.textContent = 'Salvataggio...';
+      btn.style.opacity = '0.7';
+      
+      // Force sync from DOM and save
+      syncStateFromDOM(true);
+      await saveConfig();
+      
+      // Success feedback
+      btn.textContent = '✅ Salvato!';
+      btn.style.backgroundColor = '#10b981';
+      showToast('Profilo salvato con successo!');
+      
+      // Update display immediately
+      if (els.adminNickname && els.userNickname.value) {
+        els.adminNickname.textContent = els.userNickname.value;
+        els.adminNickname.classList.remove('not-configured');
+      }
+      if (els.adminEmail && els.userEmail.value) {
+        els.adminEmail.textContent = els.userEmail.value;
+        els.adminEmail.classList.remove('not-configured');
+      }
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.backgroundColor = '';
+        btn.style.opacity = '';
+        btn.disabled = false;
+      }, 2000);
+      
+    } catch (error) {
+      // Error feedback
+      btn.textContent = '❌ Errore';
+      btn.style.backgroundColor = '#ef4444';
+      showToast('Errore nel salvataggio del profilo');
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.backgroundColor = '';
+        btn.style.opacity = '';
+        btn.disabled = false;
+      }, 2000);
+    }
+  });
+  
   els.btnAddRow.addEventListener('click', () => { addRow('', false, false, 0); showToast(t('toast.row')); });
   els.btnSave.addEventListener('click', async () => { 
     try {
@@ -624,7 +709,9 @@
   els.newPassword && els.newPassword.addEventListener('input', updatePasswordStrength);
   
   // Change password handler
-  els.btnChangePassword && els.btnChangePassword.addEventListener('click', async () => {
+  els.btnChangePassword && els.btnChangePassword.addEventListener('click', async (e) => {
+    const btn = e.target;
+    const originalText = btn.textContent;
     const currentPassword = els.currentPassword?.value || '';
     const newPassword = els.newPassword?.value || '';
     const confirmPassword = els.confirmPassword?.value || '';
@@ -646,8 +733,10 @@
     }
     
     try {
-      els.btnChangePassword.disabled = true;
-      els.btnChangePassword.textContent = 'Cambio in corso...';
+      // Visual feedback - disable button and show loading
+      btn.disabled = true;
+      btn.textContent = 'Cambio in corso...';
+      btn.style.opacity = '0.7';
       
       const response = await fetch('change-password.php', {
         method: 'POST',
@@ -662,20 +751,49 @@
       const data = await response.json();
       
       if (data.success) {
-        showToast('Password cambiata con successo!');
+        // Success feedback
+        btn.textContent = '✅ Password cambiata!';
+        btn.style.backgroundColor = '#10b981';
+        showToast('Password cambiata con successo! Reindirizzamento al login...');
+        
         // Clear form
         els.currentPassword.value = '';
         els.newPassword.value = '';
         els.confirmPassword.value = '';
         updatePasswordStrength();
+        
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+        
       } else {
+        // Error feedback
+        btn.textContent = '❌ Errore';
+        btn.style.backgroundColor = '#ef4444';
         showToast(data.error || 'Errore nel cambio password');
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.backgroundColor = '';
+          btn.style.opacity = '';
+          btn.disabled = false;
+        }, 2000);
       }
     } catch (error) {
+      // Connection error feedback
+      btn.textContent = '❌ Errore connessione';
+      btn.style.backgroundColor = '#ef4444';
       showToast('Errore di connessione');
-    } finally {
-      els.btnChangePassword.disabled = false;
-      els.btnChangePassword.textContent = 'Cambia Password';
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.backgroundColor = '';
+        btn.style.opacity = '';
+        btn.disabled = false;
+      }, 2000);
     }
   });
   // rimosso pulsante clipboard globale
@@ -701,12 +819,35 @@
     els.maxAttempts.value = 10;
     els.blockDuration.value = 300;
     els.sessionTimeout.value = 30;
+    
+    // Reset nickname and email fields
+    if (els.userNickname) els.userNickname.value = '';
+    if (els.userEmail) els.userEmail.value = '';
+    
+    // Reset display values
+    if (els.adminNickname) {
+      els.adminNickname.textContent = 'Non configurato';
+      els.adminNickname.classList.add('not-configured');
+    }
+    if (els.adminEmail) {
+      els.adminEmail.textContent = 'Non configurato';
+      els.adminEmail.classList.add('not-configured');
+    }
+    
+    // Reset password fields
+    if (els.currentPassword) els.currentPassword.value = '';
+    if (els.newPassword) els.newPassword.value = '';
+    if (els.confirmPassword) els.confirmPassword.value = '';
+    updatePasswordStrength();
+    
     state.config = {
       apiEnabled: false,
       apiKey: '',
       maxAttempts: 10,
       blockDuration: 300,
       sessionTimeout: 30,
+      adminNickname: '',
+      adminEmail: '',
       files: []
     };
     renderRows();
@@ -819,8 +960,7 @@
       if (els.adminUsername) {
         els.adminUsername.textContent = data.username || 'admin';
       }
-      // Update session timer
-      updateSessionTimer();
+      // Session timer will be updated after config is loaded
       return true;
     } catch (error) {
       window.location.href = 'login.html';
@@ -849,9 +989,20 @@
         return;
       }
       
-      const minutes = Math.floor(expiresIn / 60000);
-      const seconds = Math.floor((expiresIn % 60000) / 1000);
-      els.sessionExpires.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      const totalSeconds = Math.floor(expiresIn / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      
+      // Format based on duration
+      let timeDisplay;
+      if (hours > 0) {
+        timeDisplay = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      } else {
+        timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+      
+      els.sessionExpires.textContent = timeDisplay;
     };
     
     updateTimer();

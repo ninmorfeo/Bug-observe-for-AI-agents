@@ -5,6 +5,7 @@ const translations = {
     'app.title': 'BugObserve for AI Agents',
     'app.subtitle': 'Amministrazione endpoint log v2.0',
     'btn.save': 'Salva configurazione',
+    'btn.save.profile': 'Salva i tuoi dati',
     'btn.theme': 'Tema notte/chiaro',
     'btn.language': 'Cambia lingua / Change language',
     
@@ -144,6 +145,7 @@ const translations = {
     'app.title': 'BugObserve for AI Agents',
     'app.subtitle': 'Log endpoint administration v2.0',
     'btn.save': 'Save configuration',
+    'btn.save.profile': 'Save your data',
     'btn.theme': 'Light/dark theme',
     'btn.language': 'Change language / Cambia lingua',
     
@@ -324,6 +326,84 @@ function toggleLanguage() {
   const newLang = currentLang === 'en' ? 'it' : 'en';
   localStorage.setItem('vsdbg_language', newLang);
   
+  // Save current input values before translation
+  const savedValues = {};
+  
+  // Define default/placeholder values to ignore
+  const placeholderValues = {
+    '#user-nickname': ['SuperAdmin', ''],
+    '#user-email': ['admin@example.com', ''],
+    '#current-password': [''],
+    '#new-password': [''],
+    '#confirm-password': ['']
+  };
+  
+  const inputsToPreserve = [
+    '#api-key',
+    '#user-nickname', 
+    '#user-email',
+    '#max-attempts',
+    '#block-duration',
+    '#session-timeout',
+    '#current-password',
+    '#new-password',
+    '#confirm-password'
+  ];
+  
+  inputsToPreserve.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element && element.value) {
+      // Check if value is a placeholder that should be ignored
+      const placeholders = placeholderValues[selector];
+      const isPlaceholder = placeholders && placeholders.includes(element.value);
+      
+      // Only save if it's not a placeholder value or if no placeholders defined for this field
+      if (!isPlaceholder) {
+        savedValues[selector] = element.value;
+      }
+    }
+  });
+  
+  // Also save dynamic log file inputs and checkboxes
+  document.querySelectorAll('.log-row').forEach((row, index) => {
+    const pathInput = row.querySelector('.path');
+    const deleteCheck = row.querySelector('.delete-after');
+    const hideCheck = row.querySelector('.hide-log');
+    const charLimit = row.querySelector('.char-limit');
+    
+    // Only save path if it has a real value (not empty)
+    if (pathInput && pathInput.value && pathInput.value.trim() !== '') {
+      savedValues[`.log-row:nth-child(${index + 1}) .path`] = pathInput.value;
+    }
+    // Always save checkbox states regardless
+    if (deleteCheck) {
+      savedValues[`.log-row:nth-child(${index + 1}) .delete-after`] = deleteCheck.checked;
+    }
+    if (hideCheck) {
+      savedValues[`.log-row:nth-child(${index + 1}) .hide-log`] = hideCheck.checked;
+    }
+    // Only save char limit if not empty or zero
+    if (charLimit && charLimit.value && charLimit.value !== '0') {
+      savedValues[`.log-row:nth-child(${index + 1}) .char-limit`] = charLimit.value;
+    }
+  });
+  
+  // Save API enabled checkbox
+  const apiEnabled = document.querySelector('#api-enabled');
+  if (apiEnabled) {
+    savedValues['#api-enabled'] = apiEnabled.checked;
+  }
+  
+  // Save display values for nickname and email
+  const adminNickname = document.querySelector('#admin-nickname');
+  const adminEmail = document.querySelector('#admin-email');
+  if (adminNickname && !adminNickname.classList.contains('not-configured')) {
+    savedValues['#admin-nickname-display'] = adminNickname.textContent;
+  }
+  if (adminEmail && !adminEmail.classList.contains('not-configured')) {
+    savedValues['#admin-email-display'] = adminEmail.textContent;
+  }
+  
   // Update language button
   const langBtn = document.getElementById('btn-language');
   if (langBtn) {
@@ -335,6 +415,47 @@ function toggleLanguage() {
   }
   
   applyTranslations();
+  
+  // Restore saved input values
+  Object.keys(savedValues).forEach(selector => {
+    // Handle special display values
+    if (selector === '#admin-nickname-display') {
+      const element = document.querySelector('#admin-nickname');
+      if (element) {
+        element.textContent = savedValues[selector];
+        element.classList.remove('not-configured');
+      }
+      return;
+    }
+    if (selector === '#admin-email-display') {
+      const element = document.querySelector('#admin-email');
+      if (element) {
+        element.textContent = savedValues[selector];
+        element.classList.remove('not-configured');
+      }
+      return;
+    }
+    
+    const element = document.querySelector(selector);
+    if (element) {
+      const value = savedValues[selector];
+      
+      // Handle checkboxes
+      if (element.type === 'checkbox') {
+        element.checked = value;
+      } else {
+        // For readonly inputs, temporarily remove readonly to set value
+        const wasReadonly = element.hasAttribute('readonly');
+        if (wasReadonly) {
+          element.removeAttribute('readonly');
+        }
+        element.value = value;
+        if (wasReadonly) {
+          element.setAttribute('readonly', '');
+        }
+      }
+    }
+  });
 }
 
 // Initialize language system
