@@ -109,7 +109,25 @@ if (rand(1, 100) === 1) {
 // Helpers
 function isAllowedExtension(string $path): bool {
   $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-  return in_array($ext, ['log', 'txt', 'err'], true);
+  $filename = strtolower(basename($path));
+  
+  // Check extensions
+  $allowedExtensions = [
+    'log', 'txt', 'out', 'err', 'evt', 'evtx', 'access', 'error', 'trc', 'ldf', 
+    'binlog', 'audit', 'trace', 'debug', 'json', 'xml', 'csv'
+  ];
+  
+  // Check specific filenames (without extension)
+  $allowedFilenames = [
+    'access_log', 'error_log', 'ssl_access_log', 'ssl_error_log', 'php_errorlog',
+    'php_errors', 'syslog', 'messages', 'kern.log', 'auth.log', 'mail.log',
+    'cron.log', 'daemon.log', 'user.log', 'lastlog', 'wtmp', 'btmp', 'utmp',
+    'secure', 'maillog', 'httpd_access_log', 'httpd_error_log', 'catalina.out',
+    'gc.log', 'application.log', 'system.log', 'install.log', 'boot.log',
+    'dmesg', 'xferlog', 'sulog', 'faillog'
+  ];
+  
+  return in_array($ext, $allowedExtensions, true) || in_array($filename, $allowedFilenames, true);
 }
 
 function normalizePath(string $path, string $root): string {
